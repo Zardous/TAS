@@ -22,9 +22,7 @@ class point:
         return velocity_arr
 
     def __voltage_to_velocity(self, voltage):
-        # Insert polynomial that was found from calibration
-        velocity = voltage + 2
-        return velocity
+        return voltage + 2
 
     def __mean_velocity(self):
         mean_velocity = self.velocity_arr.mean()
