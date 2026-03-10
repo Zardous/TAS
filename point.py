@@ -10,9 +10,9 @@ class point:
         self.velocity_mean = self.__mean_velocity() 
         self.velocity_std = self.__std_velocity()
         self.velocity_rmsf = self.__rms_fluctuations()
-        self.turbulence_intensity = self.__turbulence_intensity()
-        self.skewness = self.__skewness()
-        self.kurtosis = self.__kurtosis()
+        self.velocity_turb_int = self.__turbulence_intensity()
+        self.velocity_skewness = self.__skewness()
+        self.velocity_kurtosis = self.__kurtosis()
 
 
         
@@ -37,9 +37,10 @@ class point:
         return std_velocity
 
     def __rms_fluctuations(self):
+        velocity_error = np.zeros(len(self.velocity_arr))
         for i in range(len(self.velocity_arr)):
-            self.velocity_error[i] = self.velocity_arr[i] - self.velocity_mean 
-        rms_fluctuations = math.sqrt((self.velocity_error**2)/len(self.velocity_arr))
+            velocity_error[i] = (self.velocity_arr[i] - self.velocity_mean )**2
+        rms_fluctuations = math.sqrt((velocity_error.sum())/len(self.velocity_arr))
         return rms_fluctuations
     
     def __turbulence_intensity(self):
@@ -47,17 +48,34 @@ class point:
         return turbulence_intensity
     
     def __skewness(self):
+        velocity_error_nume = np.zeros(len(self.velocity_arr))
+        velocity_error_denom = np.zeros(len(self.velocity_arr))
         for i in range(len(self.velocity_arr)):
-            self.velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**3
+            velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**3
         for j in range(len(self.velocity_arr)):
-            self.velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
-        skewness = (self.velocity_error_nume.sum() / len(self.velocity_arr)) / ((self.velocity_error_denom.sum() / len(self.velocity_arr))**(3/2))
+            velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
+        skewness = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**(3/2))
         return skewness
     
     def __kurtosis(self):
+        velocity_error_nume = np.zeros(len(self.velocity_arr))
+        velocity_error_denom = np.zeros(len(self.velocity_arr))
         for i in range(len(self.velocity_arr)):
-            self.velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**4
+            velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**4
         for j in range(len(self.velocity_arr)):
-            self.velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
-        kurtosis = (self.velocity_error_nume.sum() / len(self.velocity_arr)) / ((self.velocity_error_denom.sum() / len(self.velocity_arr))**2)
+            velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
+        kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
+    
+
+point1 = point(4,6, [2,2,2,4])
+print(point1.radial)
+print(point1.axial)
+print(point1.voltage_arr)
+print(point1.velocity_arr)
+print(point1.velocity_mean)
+print(point1.velocity_std)
+print(point1.velocity_rmsf)
+print(point1.velocity_turb_int)
+print(point1.velocity_kurtosis)
+print(point1.velocity_skewness)
