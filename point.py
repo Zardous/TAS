@@ -14,8 +14,6 @@ class point:
         self.velocity_skewness = self.__skewness()
         self.velocity_kurtosis = self.__kurtosis()
 
-
-        
     def __voltage_arr_to_velocity_arr(self):
         velocity_arr = np.zeros(len(self.voltage_arr))
 
