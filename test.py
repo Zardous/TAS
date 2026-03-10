@@ -7,6 +7,7 @@ except:
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
+from position_visualization import len0, len05, len1, len2, len4, len7, len8
 
 y0 = []
 y05 = []
@@ -16,7 +17,7 @@ y4 = []
 y7 = []
 y8 = []
 filenumber = ['0','1','2','4','05','7','8']
-for i in range(71):
+for i in range(len0):
     path = os.path.join('data', 'HW0D', 'HW0D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -27,7 +28,7 @@ for i in range(71):
     point = round(sum(data)/len(data),5)
     y0.append(point)
 
-for i in range(50):
+for i in range(len1):
     path = os.path.join('data', 'HW1D', 'HW1D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -38,7 +39,7 @@ for i in range(50):
     point = round(sum(data)/len(data),5)
     y1.append(point)
 
-for i in range(70):
+for i in range(len2):
     path = os.path.join('data', 'HW2D', 'HW2D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -49,7 +50,7 @@ for i in range(70):
     point = round(sum(data)/len(data),5)
     y2.append(point)
 
-for i in range(53):
+for i in range(len4):
     path = os.path.join('data', 'HW4D', 'HW4D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -60,7 +61,7 @@ for i in range(53):
     point = round(sum(data)/len(data),5)
     y4.append(point)
 
-for i in range(77):
+for i in range(len05):
     path = os.path.join('data', 'HW05D', 'HW05D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -71,7 +72,7 @@ for i in range(77):
     point = round(sum(data)/len(data),5)
     y05.append(point)
 
-for i in range(64):
+for i in range(len7):
     path = os.path.join('data', 'HW7D', 'HW7D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
@@ -82,7 +83,7 @@ for i in range(64):
     point = round(sum(data)/len(data),5)
     y05.append(point)
 
-for i in range(64):
+for i in range(len8):
     path = os.path.join('data', 'HW8D', 'HW8D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
