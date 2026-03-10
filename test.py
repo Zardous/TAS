@@ -83,7 +83,7 @@ for i in range(len7):
     point = round(sum(data)/len(data),5)
     y05.append(point)
 
-for i in range(len8):
+for i in range():
     path = os.path.join('data', 'HW8D', 'HW8D (' + str(i) + ').tdms')
     file = TdmsFile.read(path)
     (group, ) = file.groups()
