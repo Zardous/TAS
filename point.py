@@ -66,16 +66,3 @@ class point:
             velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
-    
-
-point1 = point(4,6, [2,2,2,4])
-print(point1.radial)
-print(point1.axial)
-print(point1.voltage_arr)
-print(point1.velocity_arr)
-print(point1.velocity_mean)
-print(point1.velocity_std)
-print(point1.velocity_rmsf)
-print(point1.velocity_turb_int)
-print(point1.velocity_kurtosis)
-print(point1.velocity_skewness)
