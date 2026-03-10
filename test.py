@@ -7,7 +7,7 @@ except:
 import sys, os
 import numpy as np
 
-path = os.path.join('data', 'HW0D', 'HW0D (1).tdms')
+path = os.path.join('data', 'HW0D', 'HW0D (1).tdms_index')
 file = TdmsFile.read(path)
 
 (group, ) = file.groups()
