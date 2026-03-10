@@ -17,8 +17,8 @@ class point:
     def __voltage_arr_to_velocity_arr(self):
         velocity_arr = np.zeros(len(self.voltage_arr))
 
-        for i in range(len(self.voltage_arr)):
-            velocity_arr[i] = self.__voltage_to_velocity(self.voltage_arr[i])
+        # for i in range(len(self.voltage_arr)):
+        velocity_arr = self.__voltage_to_velocity(self.voltage_arr)
         return velocity_arr
 
     def __voltage_to_velocity(self, voltage):
@@ -36,8 +36,8 @@ class point:
 
     def __rms_fluctuations(self):
         velocity_error = np.zeros(len(self.velocity_arr))
-        for i in range(len(self.velocity_arr)):
-            velocity_error[i] = (self.velocity_arr[i] - self.velocity_mean )**2
+        # for i in range(len(self.velocity_arr)):
+        velocity_error = (self.velocity_arr - self.velocity_mean )**2
         rms_fluctuations = math.sqrt((velocity_error.sum())/len(self.velocity_arr))
         return rms_fluctuations
     
@@ -48,19 +48,19 @@ class point:
     def __skewness(self):
         velocity_error_nume = np.zeros(len(self.velocity_arr))
         velocity_error_denom = np.zeros(len(self.velocity_arr))
-        for i in range(len(self.velocity_arr)):
-            velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**3
-        for j in range(len(self.velocity_arr)):
-            velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
+        # for i in range(len(self.velocity_arr)):
+        velocity_error_nume = (self.velocity_arr - self.velocity_mean)**3
+        # for j in range(len(self.velocity_arr)):
+        velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         skewness = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**(3/2))
         return skewness
     
     def __kurtosis(self):
         velocity_error_nume = np.zeros(len(self.velocity_arr))
         velocity_error_denom = np.zeros(len(self.velocity_arr))
-        for i in range(len(self.velocity_arr)):
-            velocity_error_nume[i] = (self.velocity_arr[i] - self.velocity_mean)**4
-        for j in range(len(self.velocity_arr)):
-            velocity_error_denom[j] = (self.velocity_arr[j] - self.velocity_mean)**2
+        # for i in range(len(self.velocity_arr)):
+        velocity_error_nume = (self.velocity_arr - self.velocity_mean)**4
+        # for j in range(len(self.velocity_arr)):
+        velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
