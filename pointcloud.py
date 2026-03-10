@@ -22,7 +22,7 @@ class PointCloud:
             axial = float(idx_name)
             if axial==5.0: axial=0.5
 
-            print(f'Working at axial pos {axial}')
+            # print(f'Working at axial pos {axial}')
 
             file_dir = os.path.join('data', 'position', f'pos_hw{idx_name}d.dat')
             with open(file_dir) as file:
@@ -40,12 +40,12 @@ class PointCloud:
                 data = channel.raw_data
 
                 if idx>=radials.size: 
-                    input(f'Found a missing position. Enter to ignore')
+                    print(f'Found a missing position. Ignoring')
                     continue
 
                 radial = radials[idx]
 
-                print(f'Working at radial pos {radial}')
+                # print(f'Working at radial pos {radial}')
 
                 current_list.append(point(radial_pos=radial, axial_pos=axial, voltage_data=data))
 
@@ -58,6 +58,7 @@ class PointCloud:
             #     lines = file_name.readlines()
             #     radials = np.array([float(p.strip()) for p in lines])
 
+        print(f'Done')
 
 ptcld = PointCloud()
 print(tuple(len(p) for p in ptcld.points))
