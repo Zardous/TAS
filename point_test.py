@@ -2,10 +2,11 @@
 
 from point import *
 
-point1 = point(4,6, [2,2,2,4])
+point1 = point(4,6, np.array([2,2,2,4]))
 print(point1.radial)
 print(point1.axial)
 print(point1.voltage_arr)
+print(point1.voltage_mean)
 print(point1.velocity_arr)
 print(point1.velocity_mean)
 print(point1.velocity_std)
