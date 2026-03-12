@@ -32,12 +32,7 @@ class PointCloud:
             idx = 0
             for file_name in os.listdir(os.path.join('data', folder_name)):
                 if not file_name.endswith('.tdms'): continue
-                file = TdmsFile.read(os.path.join('data', folder_name, file_name))
-                (group, ) = file.groups()
-                group: nptdms.tdms.TdmsGroup
-                (channel, ) = group.channels()
-                channel: nptdms.tdms.TdmsChannel
-                data = channel.raw_data
+                data = self.read(os.path.join('data', folder_name, file_name))
 
                 if idx>=radials.size: 
                     print(f'Found a missing position. Ignoring')
@@ -60,5 +55,13 @@ class PointCloud:
 
         print(f'Done')
 
+    def read(self, file_path: str):
+        file = TdmsFile.read(file_path)
+        (group, ) = file.groups()
+        group: nptdms.tdms.TdmsGroup
+        (channel, ) = group.channels()
+        channel: nptdms.tdms.TdmsChannel
+        data = channel.raw_data
+        return data
+
 ptcld = PointCloud()
-print(tuple(len(p) for p in ptcld.points))
