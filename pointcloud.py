@@ -10,6 +10,9 @@ import numpy as np
 
 class PointCloud:
     def __init__(self) -> None:
+        pass
+
+    def read_test_data(self):
         self.points = []
 
         for folder_name in os.listdir(os.path.join('data')):
@@ -21,8 +24,6 @@ class PointCloud:
             if idx_name=='5': idx_name='0_5'
             axial = float(idx_name)
             if axial==5.0: axial=0.5
-
-            # print(f'Working at axial pos {axial}')
 
             file_dir = os.path.join('data', 'position', f'pos_hw{idx_name}d.dat')
             with open(file_dir) as file:
@@ -40,8 +41,6 @@ class PointCloud:
 
                 radial = radials[idx]
 
-                # print(f'Working at radial pos {radial}')
-
                 current_list.append(point(radial_pos=radial, axial_pos=axial, voltage_data=data))
 
                 idx += 1
@@ -49,9 +48,27 @@ class PointCloud:
 
             self.points.append(current_list)
 
-            # with open(os.path.join('data', 'position', 'pos_hw0_5d.dat')) as file_name:
-            #     lines = file_name.readlines()
-            #     radials = np.array([float(p.strip()) for p in lines])
+        print(f'Done')
+
+    def read_cal_data(self):
+        self.points = []
+
+        for folder_name in os.listdir(os.path.join('data')):
+            if not folder_name.startswith('C'): continue
+
+            current_list = []
+
+            idx = 0
+            for file_name in os.listdir(os.path.join('data', folder_name)):
+                if not file_name.endswith('.tdms'): continue
+                print(folder_name, file_name)
+                data = self.read(os.path.join('data', folder_name, file_name))
+
+                current_list.append(point(radial_pos=0., axial_pos=0., voltage_data=data))
+
+                idx += 1
+
+            self.points.append(current_list)
 
         print(f'Done')
 
@@ -65,3 +82,4 @@ class PointCloud:
         return data
 
 ptcld = PointCloud()
+ptcld.read_cal_data()
