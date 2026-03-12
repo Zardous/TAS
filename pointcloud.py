@@ -61,7 +61,6 @@ class PointCloud:
             idx = 0
             for file_name in os.listdir(os.path.join('data', folder_name)):
                 if not file_name.endswith('.tdms'): continue
-                print(folder_name, file_name)
                 data = self.read(os.path.join('data', folder_name, file_name))
 
                 current_list.append(point(radial_pos=0., axial_pos=0., voltage_data=data))
@@ -80,5 +79,3 @@ class PointCloud:
         channel: nptdms.tdms.TdmsChannel
         data = channel.raw_data
         return data
-
-# ptcld = PointCloud()
