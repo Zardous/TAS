@@ -63,5 +63,3 @@ class PointCloud:
         channel: nptdms.tdms.TdmsChannel
         data = channel.raw_data
         return data
-
-ptcld = PointCloud()
