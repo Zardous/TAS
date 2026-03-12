@@ -35,7 +35,7 @@ len8 = len(data8_floats)
 radial_dist = [data0_floats, data05_floats, data1_floats, data2_floats, data4_floats, data7_floats, data8_floats]
 
 fig, ax = plt.subplots()
-axial_dist = np.array([0, 5, 10, 20, 40, 70, 80])
+axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
 
 for i in range(len(radial_dist)):
     ax.scatter(radial_dist[i], np.full(len(radial_dist[i]),axial_dist[i]))
