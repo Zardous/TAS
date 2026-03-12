@@ -12,8 +12,9 @@ for j in range(len(pointcloud_testdata.points)):
         if point.velocity_mean is not np.nan:
             mean_velocity[i] = point.velocity_mean
             radial_pos[i] = point.radial
-
+    
     #plt.plot(radial_pos, mean_velocity)
     plt.scatter(radial_pos, mean_velocity)
-plt.legend("0 0.5 1 2 4 7 8")
 
+plt.title("Mean Velocity")
+plt.show()
