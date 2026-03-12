@@ -1,7 +1,10 @@
 #imports
 import numpy as np
 from matplotlib import pyplot as plt
-import pointcloud as pc
+from pointcloud import PointCloud
+
+ptcld = PointCloud()
+ptcld.read_cal_data()
 
 # data and general values
 g = 9.80665
@@ -10,10 +13,10 @@ air_density = 1.1977 #[kg/m^3]
 water_column_height = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] #[mmH2O] 
 Valydine_voltage = [0.001, 0.065, 0.119, 0.182, 0.244, 0.299, 0.367, 0.424, 0.482, 0.535, 0.598] #[V]
 
-#HW_voltage_calibration1 = #[V]
+HW_voltage_calibration1 = [] #[V]
 VALYDINE_voltage_calibration1  = [0.002, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.091, 0.110, 0.131, 0.150, 0.191, 0.235, 0.274, 0.313, 0.343, 0.399, 0.454] #[V]
 
-##HW_voltage_calibration2 = #[V]
+HW_voltage_calibration2 = [] #[V]
 VALYDINE_voltage_calibration2 = [0.002,  0.011, 0.021, 0.029, 0.040, 0.050, 0.06, 0.071, 0.080, 0.09, 0.1, 0.13, 0.154, 0.190, 0.234, 0.272, 0.312, 0.349, 0.402, 0.451] #[V]
 
 
@@ -54,6 +57,7 @@ def phi(x, grid, f, basis):
         
     return interpolant
 
+lagrange_poly = phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)
 
 plt.plot(Valydine_voltage, phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)) 
 plt.plot(Valydine_voltage, velocity_values, 'o')   
@@ -72,13 +76,3 @@ plt.ylabel("Velocity [m/s]")
 plt.legend()
 plt.show()
 
-# getting HWA calibration data
-
-object= pc.PointCloud()
-HWA_calib1 = []
-
-for i in range(20):
-    object.read(f"data/Calibration1/static_calib ({i}).tdms")
-    
-
-print(HWA_calib1)
