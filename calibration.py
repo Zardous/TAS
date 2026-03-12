@@ -115,19 +115,28 @@ def calibration():
     return poly
 
 
-poly = calibration()
-voltage = voltage.reshape(-1, 1)
-voltage_poly = PolynomialFeatures.transform(voltage)
-y_pred = poly.predict(voltage_poly)
-print(poly.coef_)
-plt.scatter(voltage, velocity)      
-plt.plot(voltage, y_pred)   
-plt.show()
+#poly = calibration()
+#voltage = voltage.reshape(-1, 1)
+#voltage_poly = PolynomialFeatures.transform(voltage)
+#y_pred = poly.predict(voltage_poly)
+#print(poly.coef_)
+#plt.scatter(voltage, velocity)      
+#plt.plot(voltage, y_pred)   
+#plt.show()
    
-def poly_func():
-    coeffs = np.polyfit(voltage,velocity,4)
+def poly_func(x, y):
+    coeffs = np.polyfit(x,y,10)
 
     return coeffs
-    
-print(poly_func())
+       
 
+print("COEFFICIENTS:",poly_func(Valydine_voltage, velocity_values))
+#my try
+my_coeffs = poly_func(Valydine_voltage, velocity_values)
+fitted_poly = np.poly1d(my_coeffs)
+x_smooth = np.linspace(min(Valydine_voltage), max(Valydine_voltage), 200)
+y_smooth = fitted_poly(x_smooth)
+plt.scatter(Valydine_voltage, velocity_values, label="Data Points", color='black')
+plt.plot(x_smooth, y_smooth, label="10th Degree Fit", color='red')
+plt.legend()
+plt.show()
