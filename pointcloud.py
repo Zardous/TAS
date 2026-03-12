@@ -81,5 +81,4 @@ class PointCloud:
         data = channel.raw_data
         return data
 
-ptcld = PointCloud()
-ptcld.read_cal_data()
+# ptcld = PointCloud()
