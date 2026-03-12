@@ -1,6 +1,7 @@
 #imports
 import numpy as np
 from matplotlib import pyplot as plt
+import pointcloud as pc
 
 # data and general values
 g = 9.80665
@@ -53,7 +54,6 @@ def phi(x, grid, f, basis):
         
     return interpolant
 
-lagrange_poly = phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)
 
 plt.plot(Valydine_voltage, phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)) 
 plt.plot(Valydine_voltage, velocity_values, 'o')   
@@ -71,3 +71,14 @@ plt.xlabel("Valydine Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.legend()
 plt.show()
+
+# getting HWA calibration data
+
+object= pc.PointCloud()
+HWA_calib1 = []
+
+for i in range(20):
+    object.read(f"data/Calibration1/static_calib ({i}).tdms")
+    
+
+print(HWA_calib1)
