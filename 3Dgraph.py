@@ -1,38 +1,34 @@
-
-lists = ['0', '05', '1', '2', '4', '7', '8']
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from point import point
+from pointcloud import PointCloud
+from collections import defaultdict
 
-color_map = {4: "red", 7: "green", 8: "blue"}
 
-point1 = point(4, 4, [2,2,2,2,2,2])
-point2 = point(4, 5, [2,2,2,2,2,4])
-point3 = point(4, 6, [2,2,2,2,2,6])
-point4 = point(7, 4, [2,2,2,2,2,8])
-point5 = point(7, 5, [2,2,2,2,2,10])
-point6 = point(7, 6, [2,2,2,2,2,12])
-point7 = point(8, 4, [2,2,2,2,2,14])
-point8 = point(8, 5, [2,2,2,2,2,16])
-point9 = point(8, 6, [2,2,2,2,2,18])
+points = []
+
+ptcld = PointCloud()
+
+
+for p in ptcld.points:
+    for i in range(len(p)):
+        points.append((p[i].radial, p[i].axial, p[i].velocity_mean))
 
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 
-for point in [point1, point2, point3, point4, point5, point6, point7, point8, point9]: 
-    x = point.axial
-    y = point.radial
-    z = point.velocity_mean
-    
-    ax.scatter(x, y, z, color=color_map[y])
+profiles = defaultdict(list)
 
+for p in points:
+    profiles[p[1]].append(p)
 
+for r,pts in profiles.items(): 
+    x = [p[0] for p in pts]
+    y = [p[1] for p in pts]
+    z = [p[2] for p in pts]
+    ax.plot(x, y, z)
 
-
-
-ax.plot(x, y, z)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+ax.set_xlabel('Radial Position')
+ax.set_ylabel('Axial Position')
+ax.set_zlabel('Velocity')
 plt.show()
