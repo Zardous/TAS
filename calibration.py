@@ -12,21 +12,21 @@ HW_voltage_calibration1 =[] #[V]
 HW_voltage_calibration2 = [] #[V]
 list1, list2 = ptcld.points
 
-
 for p in list1:
     HW_voltage_calibration1.append(p.voltage_mean)
-HW_voltage_calibration1 = np.array(HW_voltage_calibration1.sort())
-print("HW_voltage_calibration1: ", HW_voltage_calibration1)q
+HW_voltage_calibration1.sort()
+HW_voltage_calibration1 = np.array(HW_voltage_calibration1)
+print("HW_voltage_calibration1: ", HW_voltage_calibration1)
 # np.reshape(HW_voltage_calibration1)
 
 for p in list2:
     HW_voltage_calibration2.append(p.voltage_mean)
-HW_voltage_calibration2 = np.array(HW_voltage_calibration2.sort())
+HW_voltage_calibration2.sort()
+HW_voltage_calibration2 = np.array(HW_voltage_calibration2)
 print("HW_voltage_calibration2: ", HW_voltage_calibration2)
 # np.reshape(HW_voltage_calibration2)
 
 #HW_voltage_calibration2 = np.sort(HW_voltage_calibration2).flatten()
-
 # data and general values
 g = 9.80665
 water_density = 1000 #[kg/m^3]
