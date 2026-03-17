@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
 pointcloud_testdata.shift_velocities()
-# pointcloud_testdata.filter()
+print(tuple(len(p) for p in pointcloud_testdata.points))
 
+pointcloud_testdata.filter()
+
+print(tuple(len(p) for p in pointcloud_testdata.points))
 
 def plot(attribute, idx: None|np.ndarray|list):
     suffixes = {'velocity_mean': 'm/s',
@@ -17,8 +20,8 @@ def plot(attribute, idx: None|np.ndarray|list):
     for i in range(7): 
         x = np.array([p.radial for p in pointcloud_testdata.points[i]])
         y = np.array([p.__getattribute__(attribute) for p in pointcloud_testdata.points[i]])
-        y = pointcloud_testdata.filter_arr(y)
-        x = x - pointcloud_testdata.find_mid(y, x)
+        # y = pointcloud_testdata.__check_for_filter(y)
+        # x = x - pointcloud_testdata.find_mid(y, x)[2]
 
         plt.vlines(0.0,0,15, colors='black')
         plt.plot(x, y)

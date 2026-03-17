@@ -82,7 +82,7 @@ class PointCloud:
         data = channel.raw_data
         return data
 
-    def filter_arr(self, array: np.ndarray):
+    def __check_for_filter(self, array: np.ndarray):
         '''
         Sets points to NaN if they are less than 10% of the average of its neighbours
 
@@ -96,8 +96,8 @@ class PointCloud:
 
         mid = (left+right)/2
 
-        out = np.where(0.5<array/mid, array, mid)
-        print(f'Warning: filter interpolates data')
+        out = np.where(0.9<array/mid, True, False)
+        # print(f'Warning: filter interpolates data')
         return out
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
@@ -115,18 +115,31 @@ class PointCloud:
 
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
-        over_half = np.where(vel/max>=0.97)
-        right_up_max = over_half[0][-1]
-        left_up_max = over_half[0][0]
+        over_half, = np.where(vel/max>=0.97)
+        right_up_max = over_half[-1]
+        left_up_max = over_half[0]
         midpoint = (pos[right_up_max] + pos[left_up_max])/2
+
         return right_up_max, left_up_max, midpoint, max
     
     def shift_velocities(self):
         for lst in self.points:
+            _,_,mid,_ = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
             for p in lst:
-                _,_,mid,_ = self.find_mid(np.array(p.velocity_mean), np.array(p.radial))
-                p.velocity_mean -= mid
-            print(mid, self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst])))
+                p.radial -= mid
+        return 
+    
+    def filter(self):
+        for lst in self.points:
+            # print(len(lst))
+            vels = np.array([p.velocity_mean for p in lst])
+            check = self.__check_for_filter(vels)
+            for p, c in zip(lst, check):
+                if not c:
+                    print('removing')
+                    lst.remove(p)
+            # print(len(lst))
+
 
     def plot(self):
         points = []
@@ -147,7 +160,7 @@ class PointCloud:
             y = np.array([p[1] for p in pts])
             z = np.array([p[2] for p in pts])
             x = x - self.find_mid(z, x)
-            ax.plot(x, y, self.filter_arr(z))
+            ax.plot(x, y, self.__check_for_filter(z))
 
         ax.set_xlabel('Radial Position')
         ax.set_ylabel('Axial Position')
