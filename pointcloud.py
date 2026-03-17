@@ -110,7 +110,7 @@ class PointCloud:
         for lst in self.points:
             mid = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
             for p in lst:
-                p.velocity_mean -= mid*0
+                p.velocity_mean -= mid
 
             print(mid, self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst])))
 

@@ -6,17 +6,38 @@ import matplotlib.pyplot as plt
 pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
 pointcloud_testdata.shift_velocities()
+# pointcloud_testdata.filter()
 
-for j in range(len(pointcloud_testdata.points)):
-    mean_velocity = np.zeros([len(pointcloud_testdata.points[j])])
-    radial_pos = np.zeros([len(pointcloud_testdata.points[j])])
-    for i, point in enumerate(pointcloud_testdata.points[j]):
-        if point.velocity_mean is not np.nan:
-            mean_velocity[i] = point.velocity_mean
-            radial_pos[i] = point.radial
+
+def plot(attribute, idx: None|np.ndarray|list):
+    suffixes = {'velocity_mean': 'm/s',
+                'velocity_skewness': '-'}
     
-    #plt.plot(radial_pos, mean_velocity)
-    plt.scatter(radial_pos, mean_velocity)
+    plt.title(attribute)
+    if idx==None:
+        for i in range(7): plt.plot([p.radial for p in pointcloud_testdata.points[i]], [p.__getattribute__(attribute) for p in pointcloud_testdata.points[i]])
+    else:
+        for i in idx: plt.plot([p.radial for p in pointcloud_testdata.points[i]], [p.__getattribute__(attribute) for p in pointcloud_testdata.points[i]])
 
-plt.title("Mean Velocity")
-plt.show()
+    plt.ylabel(suffixes[attribute])
+    plt.xlabel('x/d')
+
+    plt.show()
+
+
+
+plot("velocity_mean", [0, 1, 2, 3])
+
+# for j in range(len(pointcloud_testdata.points)):
+#     mean_velocity = np.zeros([len(pointcloud_testdata.points[j])])
+#     radial_pos = np.zeros([len(pointcloud_testdata.points[j])])
+#     for i, point in enumerate(pointcloud_testdata.points[j]):
+#         if point.velocity_mean is not np.nan:
+#             mean_velocity[i] = point.velocity_mean
+#             radial_pos[i] = point.radial
+
+#     #plt.plot(radial_pos, mean_velocity)
+#     plt.scatter(radial_pos, mean_velocity)
+
+# plt.title("Mean Velocity")
+# plt.show()
