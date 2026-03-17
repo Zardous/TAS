@@ -22,7 +22,7 @@ class point:
         return velocity_arr
 
     def __voltage_to_velocity(self, voltage):
-        velocity = voltage + 2
+        velocity = voltage - 1.7
         return velocity
 
     def __mean_voltage(self):
@@ -63,3 +63,5 @@ class point:
         velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
+
+# TODO: make correlation matrix

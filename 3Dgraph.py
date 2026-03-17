@@ -8,6 +8,7 @@ from collections import defaultdict
 points = []
 
 ptcld = PointCloud()
+ptcld.read_test_data()
 
 
 for p in ptcld.points:

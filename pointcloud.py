@@ -7,18 +7,20 @@ except:
 from point import point
 import sys, os
 import numpy as np
+import matplotlib.pyplot as plt
+from collections import defaultdict
 
 class PointCloud:
     def __init__(self) -> None:
         pass
 
     def read_test_data(self):
-        self.points = []
+        self.points: list[list[point]] = []
 
         for folder_name in os.listdir(os.path.join('data')):
             if not folder_name.startswith('HW'): continue
 
-            current_list = []
+            current_list: list[point] = []
 
             idx_name = folder_name[-2]
             if idx_name=='5': idx_name='0_5'
@@ -33,7 +35,7 @@ class PointCloud:
             idx = 0
             for file_name in os.listdir(os.path.join('data', folder_name)):
                 if not file_name.endswith('.tdms'): continue
-                data = self.read(os.path.join('data', folder_name, file_name))
+                data = self.__read_file(os.path.join('data', folder_name, file_name))
 
                 if idx>=radials.size: 
                     print(f'Found a missing position. Ignoring')
@@ -61,7 +63,7 @@ class PointCloud:
             idx = 0
             for file_name in os.listdir(os.path.join('data', folder_name)):
                 if not file_name.endswith('.tdms'): continue
-                data = self.read(os.path.join('data', folder_name, file_name))
+                data = self.__read_file(os.path.join('data', folder_name, file_name))
 
                 current_list.append(point(radial_pos=0., axial_pos=0., voltage_data=data))
 
@@ -71,7 +73,7 @@ class PointCloud:
 
         print(f'Done')
 
-    def read(self, file_path: str):
+    def __read_file(self, file_path: str):
         file = TdmsFile.read(file_path)
         (group, ) = file.groups()
         group: nptdms.tdms.TdmsGroup
@@ -79,3 +81,63 @@ class PointCloud:
         channel: nptdms.tdms.TdmsChannel
         data = channel.raw_data
         return data
+
+    def filter(self, array: np.ndarray):
+        '''
+        Sets points to NaN if they are less than 10% of the average of its neighbours
+
+        At endpoints of the array it uses only one neighbour
+        '''
+        left = array.copy()
+        left[:-1] = array[1:]
+
+        right = array.copy()
+        right[1:] = right[:-1]
+
+        mid = (left+right)/2
+
+        out = np.where(0.5<array/mid, array, mid)
+        print(f'Warning: filter interpolates data')
+        return out
+    
+    def find_mid(self, vel: np.ndarray, pos: np.ndarray):
+        max = np.max(vel)
+        indices = np.where(vel/max>0.95)
+        midpoint = np.mean(pos[indices])
+        return midpoint
+    
+    def shift_velocities(self):
+        for lst in self.points:
+            mid = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
+            for p in lst:
+                p.velocity_mean -= mid
+
+            print(mid, self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst])))
+
+    def plot(self):
+        points = []
+        for p in self.points:
+            for i in range(len(p)):
+                points.append((p[i].radial, p[i].axial, p[i].velocity_mean))
+
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+
+        profiles = defaultdict(list)
+
+        for p in points:
+            profiles[p[1]].append(p)
+
+        for r, pts in profiles.items(): 
+            x = np.array([p[0] for p in pts])
+            y = np.array([p[1] for p in pts])
+            z = np.array([p[2] for p in pts])
+            x = x - self.find_mid(z, x)
+            ax.plot(x, y, self.filter(z))
+
+        ax.set_xlabel('Radial Position')
+        ax.set_ylabel('Axial Position')
+        ax.set_zlabel('Velocity')
+        ax.set_zlim(0)
+        plt.show()
+
