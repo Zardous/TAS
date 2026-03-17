@@ -5,12 +5,6 @@ import matplotlib.pyplot as plt
 
 pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
-pointcloud_testdata.shift_velocities()
-print(tuple(len(p) for p in pointcloud_testdata.points))
-
-pointcloud_testdata.filter()
-
-print(tuple(len(p) for p in pointcloud_testdata.points))
 
 def plot(attribute, idx: None|np.ndarray|list):
     suffixes = {'velocity_mean': 'm/s',

@@ -51,6 +51,8 @@ class PointCloud:
             self.points.append(current_list)
 
         print(f'Done')
+        self.__shift_velocities()
+        self.__filter()
 
     def read_cal_data(self):
         self.points = []
@@ -122,22 +124,24 @@ class PointCloud:
 
         return right_up_max, left_up_max, midpoint, max
     
-    def shift_velocities(self):
+    def __shift_velocities(self):
         for lst in self.points:
             _,_,mid,_ = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
             for p in lst:
                 p.radial -= mid
         return 
     
-    def filter(self):
+    def __filter(self):
         for lst in self.points:
+            tmp = []
             # print(len(lst))
             vels = np.array([p.velocity_mean for p in lst])
             check = self.__check_for_filter(vels)
             for p, c in zip(lst, check):
-                if not c:
-                    print('removing')
-                    lst.remove(p)
+                if c:
+                    tmp.append(p)
+            lst.clear()
+            lst.extend(tmp)
             # print(len(lst))
 
 
