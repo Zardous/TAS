@@ -107,7 +107,7 @@ plt.plot(VALYDINE_voltage_calibration2, velocity_cal2, 's', label="calibration 2
 plt.xlabel("Valydine Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.legend()
-#plt.show()
+plt.show()
 
 # HWA to velocity
 print("velocity cal1", velocity_cal1)
@@ -116,6 +116,7 @@ print("HWAcal1",HW_voltage_calibration1)
 #HW_voltage_calibration2 = HW_voltage_calibration2.tolist()
 
 voltage = np.append(HW_voltage_calibration1,  HW_voltage_calibration2)
+print(f'voltage shape {voltage.shape}')
 velocity = np.append(velocity_cal1, velocity_cal2)
 
 
@@ -123,7 +124,7 @@ print("velocity:", velocity)
 print("voltage:", voltage)
 plt.plot(voltage, velocity)  
 plt.scatter(voltage, velocity)
-#plt.show()
+plt.show()
 #quit()
 
 def model(x,y):
@@ -140,11 +141,13 @@ poly = model(voltage, velocity)
 #voltage = voltage.reshape(-1, 1)
 #voltage_poly = PolynomialFeatures.transform(voltage)
 degree = PolynomialFeatures(degree=4)
-HW_voltage_calibration1_5D = degree.fit_transform(HW_voltage_calibration1.reshape(-1,1))
+test = np.linspace(0, 2.5, 50)
+HW_voltage_calibration1_5D = degree.fit_transform(test.reshape(-1,1)) 
 v_pred = poly.predict(HW_voltage_calibration1_5D)
 print(poly.coef_)
+print(poly.intercept_)
 plt.scatter(voltage, velocity)      
-plt.plot(HW_voltage_calibration1, v_pred)
+plt.plot(test, v_pred)
 plt.title("Checking for the right polynomial")
 plt.show()
    
