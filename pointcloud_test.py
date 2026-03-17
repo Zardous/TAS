@@ -4,6 +4,8 @@ from point import point
 import matplotlib.pyplot as plt
 
 pointcloud_testdata = PointCloud()
+pointcloud_testdata.read_test_data()
+pointcloud_testdata.shift_velocities()
 
 for j in range(len(pointcloud_testdata.points)):
     mean_velocity = np.zeros([len(pointcloud_testdata.points[j])])
