@@ -22,7 +22,7 @@ class point:
         return velocity_arr
 
     def __voltage_to_velocity(self, voltage):
-        velocity = voltage - 1.7
+        velocity = -15.577001774682708+38.2584093*voltage-23.36414635*voltage**2+0.35160582*voltage**3+1.97694339*voltage**4
         return velocity
 
     def __mean_voltage(self):
