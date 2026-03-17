@@ -82,7 +82,7 @@ class PointCloud:
         data = channel.raw_data
         return data
 
-    def filter(self, array: np.ndarray):
+    def filter_arr(self, array: np.ndarray):
         '''
         Sets points to NaN if they are less than 10% of the average of its neighbours
 
@@ -133,7 +133,7 @@ class PointCloud:
             y = np.array([p[1] for p in pts])
             z = np.array([p[2] for p in pts])
             x = x - self.find_mid(z, x)
-            ax.plot(x, y, self.filter(z))
+            ax.plot(x, y, self.filter_arr(z))
 
         ax.set_xlabel('Radial Position')
         ax.set_ylabel('Axial Position')
