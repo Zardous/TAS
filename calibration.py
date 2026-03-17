@@ -11,15 +11,22 @@ ptcld.read_cal_data()
 HW_voltage_calibration1 =[] #[V]
 HW_voltage_calibration2 = [] #[V]
 list1, list2 = ptcld.points
+
 for p in list1:
     HW_voltage_calibration1.append(p.voltage_mean)
+HW_voltage_calibration1.sort()
 HW_voltage_calibration1 = np.array(HW_voltage_calibration1)
+print("HW_voltage_calibration1: ", HW_voltage_calibration1)
+# np.reshape(HW_voltage_calibration1)
+
 for p in list2:
     HW_voltage_calibration2.append(p.voltage_mean)
+HW_voltage_calibration2.sort()
 HW_voltage_calibration2 = np.array(HW_voltage_calibration2)
+print("HW_voltage_calibration2: ", HW_voltage_calibration2)
+# np.reshape(HW_voltage_calibration2)
 
-print(HW_voltage_calibration1, HW_voltage_calibration2)
-
+#HW_voltage_calibration2 = np.sort(HW_voltage_calibration2).flatten()
 # data and general values
 g = 9.80665
 water_density = 1000 #[kg/m^3]
@@ -77,6 +84,8 @@ plt.show()
 
 # calibration Valydine to velocity
 velocity_cal1 = phi(VALYDINE_voltage_calibration1, Valydine_voltage, velocity_values, lagrange_basis_func)
+print(velocity_cal1.shape)
+
 velocity_cal2 = phi(VALYDINE_voltage_calibration2, Valydine_voltage, velocity_values, lagrange_basis_func)
 plt.plot(Valydine_voltage, velocity_values, 'o', label="known data")
 
@@ -89,8 +98,14 @@ plt.legend()
 plt.show()
 
 # HWA to velocity
-velocity = velocity_cal1 #+ velocity_cal2
-voltage = HW_voltage_calibration1 #+ HW_voltage_calibration2
+print("velocity cal1", velocity_cal1)
+print("HWAcal1",HW_voltage_calibration1)
+#HW_voltage_calibration1 = HW_voltage_calibration1.tolist()
+#HW_voltage_calibration2 = HW_voltage_calibration2.tolist()
+
+voltage = np.append(HW_voltage_calibration1,  HW_voltage_calibration2)
+velocity = np.append(velocity_cal1, velocity_cal2)
+
 
 print(velocity)
 print(voltage)
