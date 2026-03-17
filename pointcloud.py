@@ -172,3 +172,26 @@ class PointCloud:
         ax.set_zlim(0)
         plt.show()
 
+    def plot_2D(self, attribute, idx: None|np.ndarray|list):
+        suffixes = {'velocity_mean': 'm/s',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',}
+        
+        plt.title(attribute)
+        if idx==None:
+            for i in range(7): 
+                x = np.array([p.radial for p in self.points[i]])
+                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
+                plt.plot(x, y)
+        else:
+            for i in idx: 
+                x = np.array([p.radial for p in self.points[i]])
+                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
+                plt.plot(x, y)
+
+        plt.ylabel(suffixes[attribute])
+        plt.xlabel('x/d')
+
+        plt.show()
