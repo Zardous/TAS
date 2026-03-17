@@ -8,25 +8,37 @@ from sklearn.linear_model import LinearRegression
 ptcld = PointCloud()
 ptcld.read_cal_data()
 
+#Hot wire voltages read from the files
+#HW_voltage_calibration1:  [1.69504677 1.96513012 2.02282869 2.06378831 2.08783118 2.11210874
+ #2.12805589 2.14470475 2.15924293 2.17331288 2.19387913 2.21405078
+ #2.22950905 2.25879872 2.28525563 2.30502251 2.32247552 2.33457597
+ #2.35556621 2.37291198]
+#HW_voltage_calibration2:  [1.69942348 1.94905992 2.02007438 2.05205678 2.08261532 2.10627165
+ #2.12594933 2.14418338 2.1575524  2.17067774 2.18448637 2.21371998
+ #2.23518805 2.26132232 2.28688577 2.30512208 2.32442563 2.33863592
+ #2.35931018 2.37480002]
+
 HW_voltage_calibration1 =[] #[V]
 HW_voltage_calibration2 = [] #[V]
 list1, list2 = ptcld.points
+
 
 for p in list1:
     HW_voltage_calibration1.append(p.voltage_mean)
 HW_voltage_calibration1.sort()
 HW_voltage_calibration1 = np.array(HW_voltage_calibration1)
-print("HW_voltage_calibration1: ", HW_voltage_calibration1)
+#print("HW_voltage_calibration1: ", HW_voltage_calibration1)
 # np.reshape(HW_voltage_calibration1)
 
 for p in list2:
     HW_voltage_calibration2.append(p.voltage_mean)
 HW_voltage_calibration2.sort()
 HW_voltage_calibration2 = np.array(HW_voltage_calibration2)
-print("HW_voltage_calibration2: ", HW_voltage_calibration2)
+#print("HW_voltage_calibration2: ", HW_voltage_calibration2)
 # np.reshape(HW_voltage_calibration2)
 
 #HW_voltage_calibration2 = np.sort(HW_voltage_calibration2).flatten()
+
 # data and general values
 g = 9.80665
 water_density = 1000 #[kg/m^3]
@@ -52,8 +64,8 @@ for i in water_column_height:
 
 # Valydine voltage to velocity
 
-plt.plot(Valydine_voltage, velocity_values)
-plt.show()
+#plt.plot(Valydine_voltage, velocity_values)
+#plt.show()
 
 # Valydine to velocity interpolation
     # f: velocity, xi: Valydine:
@@ -80,11 +92,11 @@ def phi(x, grid, f, basis):
 
 plt.plot(Valydine_voltage, phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)) 
 plt.plot(Valydine_voltage, velocity_values, 'o')   
-plt.show()
+#plt.show()
 
 # calibration Valydine to velocity
 velocity_cal1 = phi(VALYDINE_voltage_calibration1, Valydine_voltage, velocity_values, lagrange_basis_func)
-print(velocity_cal1.shape)
+print("velocity_cal1.shape:", velocity_cal1.shape)
 
 velocity_cal2 = phi(VALYDINE_voltage_calibration2, Valydine_voltage, velocity_values, lagrange_basis_func)
 plt.plot(Valydine_voltage, velocity_values, 'o', label="known data")
@@ -95,7 +107,7 @@ plt.plot(VALYDINE_voltage_calibration2, velocity_cal2, 's', label="calibration 2
 plt.xlabel("Valydine Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.legend()
-plt.show()
+#plt.show()
 
 # HWA to velocity
 print("velocity cal1", velocity_cal1)
@@ -107,11 +119,11 @@ voltage = np.append(HW_voltage_calibration1,  HW_voltage_calibration2)
 velocity = np.append(velocity_cal1, velocity_cal2)
 
 
-print(velocity)
-print(voltage)
+print("velocity:", velocity)
+print("voltage:", voltage)
 plt.plot(voltage, velocity)  
 plt.scatter(voltage, velocity)
-plt.show()
+#plt.show()
 #quit()
 
 def model(x,y):
@@ -123,35 +135,31 @@ def model(x,y):
 
     return model
 
-def calibration():
+poly = model(voltage, velocity)
 
-    poly = model(voltage, velocity)
-
-    return poly
-
-
-#poly = calibration()
 #voltage = voltage.reshape(-1, 1)
 #voltage_poly = PolynomialFeatures.transform(voltage)
-#y_pred = poly.predict(voltage_poly)
-#print(poly.coef_)
-#plt.scatter(voltage, velocity)      
-#plt.plot(voltage, y_pred)   
-#plt.show()
+degree = PolynomialFeatures(degree=4)
+HW_voltage_calibration1_5D = degree.fit_transform(HW_voltage_calibration1.reshape(-1,1))
+v_pred = poly.predict(HW_voltage_calibration1_5D)
+print(poly.coef_)
+plt.scatter(voltage, velocity)      
+plt.plot(HW_voltage_calibration1, v_pred)
+plt.title("Checking for the right polynomial")
+plt.show()
    
-def poly_func(x, y):
-    coeffs = np.polyfit(x,y,10)
-
-    return coeffs
+#def poly_func(x, y):
+#    coeffs = np.polyfit(x,y,10)
+#    return coeffs
        
 
-print("COEFFICIENTS:",poly_func(Valydine_voltage, velocity_values))
+#print("COEFFICIENTS:",poly_func(Valydine_voltage, velocity_values))
 #my try
-my_coeffs = poly_func(Valydine_voltage, velocity_values)
-fitted_poly = np.poly1d(my_coeffs)
-x_smooth = np.linspace(min(Valydine_voltage), max(Valydine_voltage), 200)
-y_smooth = fitted_poly(x_smooth)
-plt.scatter(Valydine_voltage, velocity_values, label="Data Points", color='black')
-plt.plot(x_smooth, y_smooth, label="10th Degree Fit", color='red')
-plt.legend()
-plt.show()
+#my_coeffs = poly_func(Valydine_voltage, velocity_values)
+#fitted_poly = np.poly1d(my_coeffs)
+#x_smooth = np.linspace(min(Valydine_voltage), max(Valydine_voltage), 200)
+#y_smooth = fitted_poly(x_smooth)
+#plt.scatter(Valydine_voltage, velocity_values, label="Data Points", color='black')
+#plt.plot(x_smooth, y_smooth, label="10th Degree Fit", color='red')
+#plt.legend()
+#plt.show()
