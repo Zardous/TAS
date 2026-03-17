@@ -1,20 +1,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 
-with open("data\position\pos_hw0_5d.dat", "r") as file05:
-    data05 = file05.readlines()
-with open("data\position\pos_hw0d.dat", "r") as file0:
-    data0 = file0.readlines()
-with open("data\position\pos_hw1d.dat", "r") as file1:
-    data1 = file1.readlines()
-with open("data\position\pos_hw2d.dat", "r") as file2:
-    data2 = file2.readlines()
-with open("data\position\pos_hw4d.dat", "r") as file4:
-    data4 = file4.readlines()
-with open("data\position\pos_hw7d.dat", "r") as file7:
-    data7 = file7.readlines()
-with open("data\position\pos_hw8d.dat", "r") as file8:
-    data8 = file8.readlines()
+BASE_DIR = Path(__file__).parent / "data" / "position"
+
+FILE_NAMES = {
+    "data05": "pos_hw0_5d.dat",
+    "data0":   "pos_hw0d.dat",
+    "data1":   "pos_hw1d.dat",
+    "data2":   "pos_hw2d.dat",
+    "data4":   "pos_hw4d.dat",
+    "data7":   "pos_hw7d.dat",
+    "data8":   "pos_hw8d.dat",
+}
+
+data = {}
+for key, fname in FILE_NAMES.items():
+    with open(BASE_DIR / fname, "r") as f:
+        data[key] = f.readlines()
+
+data05, data0, data1, data2, data4, data7, data8 = (
+    data["data05"], data["data0"], data["data1"], data["data2"],
+    data["data4"],  data["data7"], data["data8"]
+)
 
 data05_floats = [float(line.strip()) for line in data05]
 data0_floats = [float(line.strip()) for line in data0]
