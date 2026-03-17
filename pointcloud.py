@@ -100,18 +100,32 @@ class PointCloud:
         print(f'Warning: filter interpolates data')
         return out
     
+    def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
+        max = np.max(vel)
+        over_half = np.where(vel/max>=0.5)
+        right_up = over_half[0][-1]
+        left_up = over_half[0][0]
+        right_down = right_up+1
+        left_down = left_up-1
+        indice_over_half = np.where(vel/max<0.55)
+        indice_under_half = np.where(vel/max>0.45)
+        indice_half = np.intersect1d(indice_under_half, indice_over_half)
+        print(f'Half width at: {pos[indice_half]}')
+        return indice_half, right_up, left_up, right_down, left_down
+
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
-        indices = np.where(vel/max>0.95)
-        midpoint = np.mean(pos[indices])
-        return midpoint
+        over_half = np.where(vel/max>=0.97)
+        right_up_max = over_half[0][-1]
+        left_up_max = over_half[0][0]
+        midpoint = (pos[right_up_max] + pos[left_up_max])/2
+        return right_up_max, left_up_max, midpoint, max
     
     def shift_velocities(self):
         for lst in self.points:
-            mid = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
             for p in lst:
+                _,_,mid,_ = self.find_mid(np.array(p.velocity_mean), np.array(p.radial))
                 p.velocity_mean -= mid
-
             print(mid, self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst])))
 
     def plot(self):
