@@ -49,21 +49,19 @@ class point:
         return turbulence_intensity
     
     def __skewness(self):
-        #velocity_error_nume = np.zeros(len(self.velocity_arr))
-        #velocity_error_denom = np.zeros(len(self.velocity_arr))
-        #velocity_error_nume = (self.velocity_arr - self.velocity_mean)**3
-        #velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
-        #skewness = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**(3/2))
-        skewness = stats.skew(self.velocity_arr)
+        velocity_error_nume = np.zeros(len(self.velocity_arr))
+        velocity_error_denom = np.zeros(len(self.velocity_arr))
+        velocity_error_nume = (self.velocity_arr - self.velocity_mean)**3
+        velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
+        skewness = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**(3/2))
         return skewness
     
     def __kurtosis(self):
-        #velocity_error_nume = np.zeros(len(self.velocity_arr))
-        #velocity_error_denom = np.zeros(len(self.velocity_arr))
-        #velocity_error_nume = (self.velocity_arr - self.velocity_mean)**4
-        #velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
-        #kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
-        kurtosis = stats.kurtosis(self.velocity_arr)
+        velocity_error_nume = np.zeros(len(self.velocity_arr))
+        velocity_error_denom = np.zeros(len(self.velocity_arr))
+        velocity_error_nume = (self.velocity_arr - self.velocity_mean)**4
+        velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
+        kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
 
 # TODO: make correlation matrix
