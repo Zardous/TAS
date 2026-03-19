@@ -89,28 +89,20 @@ class PointCloud:
         return data
 
     def __check_for_filter(self, array: np.ndarray):
-        '''
-        Sets points to NaN if they are less than 10% of the average of its neighbours
-
-        At endpoints of the array it uses only one neighbour
-        '''
         left = array.copy()
         left[:-1] = array[1:]
-
         right = array.copy()
         right[1:] = right[:-1]
-
         mid = (left+right)/2
-
-        # Creates an array of bools that are either true or false; true if it is an outlier with respect to its neibours
-        out = np.where(0.9<array/mid, True, False)
-        # print(f'Warning: filter interpolates data')
-
+        out = np.where(0.9<array/mid)
         return out
     
     def __check_for_tail_filter(self, array: np.ndarray):
         max = np.max(array)
-        out = np.where(array/max<0.05, True, False)
+        out = np.where(array/max<0.05)
+
+        #array.index(max)
+        
         return out
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
@@ -136,8 +128,8 @@ class PointCloud:
         return right_up_max, left_up_max, midpoint, max
     
     def find_core(self, vel: np.ndarray, pos: np.ndarray):
-        max = np.max(vel[0:70])
-        over_half, = np.where(vel/max>=0.97)
+        max = np.max(vel[0])
+        over_half, = np.where(vel[0]/max>=0.97)
         right_up_max_ = over_half[-1]
         left_up_max_ = over_half[0]
         return right_up_max_, left_up_max_
@@ -163,15 +155,15 @@ class PointCloud:
 
             vels = np.array([p.velocity_mean for p in lst])
             print(self.__check_for_tail_filter(vels))
-        
+        return 
             
 
 
-    def plot(self):
+    def plot(self, attribute):
         points = []
         for p in self.points:
             for i in range(len(p)):
-                points.append((p[i].radial, p[i].axial, p[i].velocity_mean))
+                points.append((p[i].radial, p[i].axial, p[i].__getattribute__(attribute)))
 
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -210,13 +202,13 @@ class PointCloud:
             for i in range(7): 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
+                ax.scatter(x, y, color=col[i], label = str(self.points[i][0].axial))
                 
         else:
             for i in idx: 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i])
+                ax.scatter(x, y, color=col[i])
 
         ax.legend()
         return ax
