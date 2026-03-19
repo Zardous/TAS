@@ -212,16 +212,12 @@ class PointCloud:
                     'velocity_std': 'm/s',
                     'velocity_rmsf': 'm/s',}
         
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#5500FF', '#0000FF']
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
 
-        for i in range(7): 
-            x = np.array([p.radial for p in self.points[i]])
-            y = np.array([p.axial for p in self.points[i]])
-            z = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-            ax.plot_trisurf(x, y, z, antialiased=True)
-
-        ax.legend()
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst])
+        ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
