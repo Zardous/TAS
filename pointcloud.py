@@ -8,6 +8,7 @@ from point import point
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.axes as axes
 from collections import defaultdict
 
 class PointCloud:
@@ -220,7 +221,12 @@ class PointCloud:
         ax.legend()
         return ax
 
-    def plot_surface(self, attribute):
+    def plot_surface(self, attribute, ax: axes._axes.Axes):
+        fig = ax.get_figure()
+        assert fig!=None
+        ss = ax.get_subplotspec()
+        fig.delaxes(ax)
+        ax = fig.add_subplot(ss, projection='3d')
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
@@ -232,17 +238,11 @@ class PointCloud:
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
 
-        if idx==None:
-            for i in range(7): 
-                x = np.array([p.radial for p in self.points[i]])
-                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
-                
-        else:
-            for i in idx: 
-                x = np.array([p.radial for p in self.points[i]])
-                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i])
+        for i in range(7): 
+            x = np.array([p.radial for p in self.points[i]])
+            y = np.array([p.axial for p in self.points[i]])
+            z = np.array([p.__getattribute__(attribute) for p in self.points[i]])
+            ax.plot_trisurf(x, y, z, antialiased=True)
 
         ax.legend()
         return ax
