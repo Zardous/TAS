@@ -156,8 +156,16 @@ class PointCloud:
             vels = np.array([p.velocity_mean for p in lst])
             print(self.__check_for_tail_filter(vels))
         return 
-            
+    
+    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:
+        main_pt = self.points[axial_idx][radial_idx]
+        main_atr = main_pt.__getattribute__(attribute)
+        m, s = main_atr.mean(), main_atr.std()
+        main_atr_norm = (main_atr-m)/s
 
+        raise NotImplementedError
+        # unfinished
+        return
 
     def plot(self, attribute):
         points = []
@@ -223,7 +231,8 @@ class PointCloud:
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
-                    'velocity_rmsf': 'm/s',}
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
         
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
