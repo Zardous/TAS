@@ -144,7 +144,6 @@ class PointCloud:
             lst.extend(tmp)
             # print(len(lst))
 
-
     def plot(self):
         points = []
         for p in self.points:
