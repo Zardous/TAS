@@ -50,6 +50,9 @@ class PointCloud:
 
             self.points.append(current_list)
 
+        zerofive = self.points.pop(0)
+        self.points.insert(1, zerofive)
+        
         print(f'Done')
         self.__shift_velocities()
         self.__filter()
@@ -134,16 +137,13 @@ class PointCloud:
     def __filter(self):
         for lst in self.points:
             tmp = []
-            # print(len(lst))
             vels = np.array([p.velocity_mean for p in lst])
             check = self.__check_for_filter(vels)
             for p, c in zip(lst, check):
-                if c:
+                if c and p.velocity_kurtosis<2000:
                     tmp.append(p)
             lst.clear()
             lst.extend(tmp)
-            # print(len(lst))
-
 
     def plot(self):
         points = []
@@ -163,8 +163,7 @@ class PointCloud:
             x = np.array([p[0] for p in pts])
             y = np.array([p[1] for p in pts])
             z = np.array([p[2] for p in pts])
-            x = x - self.find_mid(z, x)
-            ax.plot(x, y, self.__check_for_filter(z))
+            ax.plot(x, y, z)
 
         ax.set_xlabel('Radial Position')
         ax.set_ylabel('Axial Position')
@@ -172,26 +171,29 @@ class PointCloud:
         ax.set_zlim(0)
         plt.show()
 
-    def plot_2D(self, attribute, idx: None|np.ndarray|list):
+    def plot_2D(self, attribute, idx: None|np.ndarray|list, ax):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
                     'velocity_rmsf': 'm/s',}
         
-        plt.title(attribute)
+        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#5500FF', '#0000FF']
+        ax.set_title(attribute)
+        ax.set_ylabel(suffixes[attribute])
+        ax.set_xlabel('x/d')
+
         if idx==None:
             for i in range(7): 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                plt.plot(x, y)
+                ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
+                
         else:
             for i in idx: 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                plt.plot(x, y)
+                ax.plot(x, y, color=col[i])
 
-        plt.ylabel(suffixes[attribute])
-        plt.xlabel('x/d')
-
-        plt.show()
+        ax.legend()
+        return ax

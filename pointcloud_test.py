@@ -7,7 +7,14 @@ pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
 #pointcloud_testdata.shift_velocities()
 iteration_num = 0
-for i in range(len(pointcloud_testdata.points)):
+n = len(pointcloud_testdata.points)
+axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
+halfwidths = np.zeros(n)
+midpoints = np.zeros(n)
+max_velocities = np.zeros(n)
+max_widths = np.zeros(n)
+
+for i in range(n):
     lst = pointcloud_testdata.points[i]
     vel = np.array([p.velocity_mean for p in lst])
     pos = np.array([p.radial for p in lst])  
@@ -23,20 +30,36 @@ for i in range(len(pointcloud_testdata.points)):
 
     print(f'Left up pos max: {pos[left_up_max]}, Right up pos max: {pos[right_up_max]}, Midpoint: {midpoint}, Max: {max}')
     print(f'Left up max: {left_up_max}, Right up max: {right_up_max}, Midpoint: {midpoint}, Max: {max}')
+                             
+    halfwidths[i] = (pos[right_up] - pos[left_up]) / 2 
+    max_widths[i] = (pos[right_up_max] - pos[left_up_max]) / 2
+    midpoints[i] = midpoint
+    max_velocities[i] = max
     
-    
-    fig, ax = plt.subplots()
-    ax.plot(pos, vel, label="Velocity profile")
-    ax.axhline(y=vel[left_up],     color='green', linestyle='--', label="Halfwidth velocity")
-    ax.axhline(y=vel[left_up_max], color='blue',  linestyle=':',  label="Max region velocity")
-    ax.set_title(f"Axial position {i}")
-    ax.set_xlabel("Radial position")
-    ax.set_ylabel("Velocity")
-    ax.legend()
+    plt.scatter(pos, vel, label=f"Velocity profile{i}")
+    plt.axhline(y=vel[left_up],     color='green', linestyle='--', label="Halfwidth velocity")
+    plt.axhline(y=vel[left_up_max], color='blue',  linestyle=':',  label="Max region velocity")
+    plt.title(f"Axial position {i}")
+    plt.xlabel("Radial position")
+    plt.ylabel("Velocity")
+    plt.legend()   
     plt.show()
 
     iteration_num += 1
 
+plt.scatter(axial_dist, max_widths, label="Max velocity width vs axial distance")
+plt.title(f"Axial position {i}")
+plt.xlabel("Axial distance")
+plt.ylabel("Max velocity width")
+plt.legend()   
+plt.show()
+
+
+plt.scatter(axial_dist, halfwidths, label="Jet halfwidth vs axial distance")
+plt.title("Jet halfwidth vs Axial distance")
+plt.xlabel("Axial distance")
+plt.ylabel("Jet halfwidth")
+plt.show()
 
 for j in range(len(pointcloud_testdata.points)):
     mean_velocity = np.zeros([len(pointcloud_testdata.points[j])])
