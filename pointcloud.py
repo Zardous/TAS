@@ -180,7 +180,7 @@ class PointCloud:
                     'velocity_rmsf': 'm/s',
                     'velocity_turb_int': '-'}
         
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#6400FF', '#0000C8']
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
