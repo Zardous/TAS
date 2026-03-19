@@ -179,34 +179,7 @@ class PointCloud:
                     'velocity_rmsf': 'm/s',
                     'velocity_turb_int': '-'}
         
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#6400FF', '#0000C8']
-        ax.set_title(attribute)
-        ax.set_ylabel(suffixes[attribute])
-        ax.set_xlabel('x/d')
-
-        if idx==None:
-            for i in range(7): 
-                x = np.array([p.radial for p in self.points[i]])
-                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
-                
-        else:
-            for i in idx: 
-                x = np.array([p.radial for p in self.points[i]])
-                y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.plot(x, y, color=col[i])
-
-        ax.legend()
-        return ax
-
-    def plot_surface(self, attribute)
-        suffixes = {'velocity_mean': 'm/s',
-                    'velocity_skewness': '-',
-                    'velocity_kurtosis': '-',
-                    'velocity_std': 'm/s',
-                    'velocity_rmsf': 'm/s',}
-        
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#5500FF', '#0000FF']
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
