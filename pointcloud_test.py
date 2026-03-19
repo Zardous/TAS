@@ -59,7 +59,7 @@ plt.scatter(axial_dist, halfwidths, label="Jet halfwidth vs axial distance")
 plt.title("Jet halfwidth vs Axial distance")
 plt.xlabel("Axial distance")
 plt.ylabel("Jet halfwidth")
-plt.show()
+#plt.show()
 
 for j in range(len(pointcloud_testdata.points)):
     mean_velocity = np.zeros([len(pointcloud_testdata.points[j])])

@@ -199,7 +199,7 @@ class PointCloud:
         ax.legend()
         return ax
 
-    def plot_surface(self, attribute)
+    def plot_surface(self, attribute):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
