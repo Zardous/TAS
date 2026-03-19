@@ -8,7 +8,7 @@ pointcloud_testdata.read_test_data()
 #pointcloud_testdata.shift_velocities()
 iteration_num = 0
 n = len(pointcloud_testdata.points)
-axial_dist = np.array([12, 6, 0, 24, 48, 84, 96])
+axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
 halfwidths = np.zeros(n)
 midpoints = np.zeros(n)
 max_velocities = np.zeros(n)
@@ -26,19 +26,20 @@ for i in range(n):
     print(f'Left down: {pos[left_down]}, Left up: {pos[left_up]}, Right up: {pos[right_up]}, Right down: {pos[right_down]}')
     print(f'Left down: {left_down}, Left up: {left_up}, Right up: {right_up}, Right down: {right_down}')
     right_up_max, left_up_max, max, midpoint = pointcloud_testdata.find_mid(vel, pos)
+    right_up_max_, left_up_max_ = pointcloud_testdata.find_core(vel, pos)
     print(midpoint)
 
     print(f'Left up pos max: {pos[left_up_max]}, Right up pos max: {pos[right_up_max]}, Midpoint: {midpoint}, Max: {max}')
     print(f'Left up max: {left_up_max}, Right up max: {right_up_max}, Midpoint: {midpoint}, Max: {max}')
                              
     halfwidths[i] = (pos[right_up] - pos[left_up]) / 2 
-    max_widths[i] = (pos[right_up_max] - pos[left_up_max]) / 2
+    max_widths[i] = (pos[right_up_max_] - pos[left_up_max_]) / 2
     midpoints[i] = midpoint
     max_velocities[i] = max
     
     plt.scatter(pos, vel, label=f"Velocity profile{i}")
     plt.axhline(y=vel[left_up],     color='green', linestyle='--', label="Halfwidth velocity")
-    plt.axhline(y=vel[left_up_max], color='blue',  linestyle=':',  label="Max region velocity")
+    plt.axhline(y=vel[left_up_max_], color='blue',  linestyle=':',  label="Max region velocity")
     plt.title(f"Axial position {i}")
     plt.xlabel("Radial position")
     plt.ylabel("Velocity")
@@ -50,8 +51,7 @@ for i in range(n):
 plt.scatter(axial_dist, max_widths, label="Max velocity width vs axial distance")
 plt.title(f"Axial position {i}")
 plt.xlabel("Axial distance")
-plt.ylabel("Max velocity width")
-plt.legend()   
+plt.ylabel("Max velocity width") 
 plt.show()
 
 

@@ -101,8 +101,15 @@ class PointCloud:
 
         mid = (left+right)/2
 
+        # Creates an array of bools that are either true or false; true if it is an outlier with respect to its neibours
         out = np.where(0.9<array/mid, True, False)
         # print(f'Warning: filter interpolates data')
+
+        return out
+    
+    def __check_for_tail_filter(self, array: np.ndarray):
+        max = np.max(array)
+        out = np.where(array/max<0.05, True, False)
         return out
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
@@ -127,6 +134,13 @@ class PointCloud:
 
         return right_up_max, left_up_max, midpoint, max
     
+    def find_core(self, vel: np.ndarray, pos: np.ndarray):
+        max = np.max(vel[0:70])
+        over_half, = np.where(vel/max>=0.97)
+        right_up_max_ = over_half[-1]
+        left_up_max_ = over_half[0]
+        return right_up_max_, left_up_max_
+    
     def __shift_velocities(self):
         for lst in self.points:
             _,_,mid,_ = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
@@ -139,11 +153,18 @@ class PointCloud:
             tmp = []
             vels = np.array([p.velocity_mean for p in lst])
             check = self.__check_for_filter(vels)
+
             for p, c in zip(lst, check):
                 if c and p.velocity_kurtosis<2000:
                     tmp.append(p)
             lst.clear()
             lst.extend(tmp)
+
+            vels = np.array([p.velocity_mean for p in lst])
+            print(self.__check_for_tail_filter(vels))
+        
+            
+
 
     def plot(self):
         points = []
@@ -179,7 +200,7 @@ class PointCloud:
                     'velocity_rmsf': 'm/s',
                     'velocity_turb_int': '-'}
         
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#6400FF', '#0000C8']
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
