@@ -2,7 +2,7 @@ from pointcloud import * # Also imports point.py
 
 cloud = PointCloud()
 cloud.read_test_data()
-cloud.plot('velocity_skewness')
+cloud.plot('velocity_mean')
 
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 cloud.plot_2D('velocity_mean', [0], ax1)

@@ -94,7 +94,7 @@ class PointCloud:
         right = array.copy()
         right[1:] = right[:-1]
         mid = (left+right)/2
-        out = np.where(0.9<array/mid)
+        out = np.where(0.9<array/mid, True, False)
         return out
     
     def __check_for_tail_filter(self, array: np.ndarray):
@@ -168,24 +168,15 @@ class PointCloud:
         return
 
     def plot(self, attribute):
-        points = []
-        for p in self.points:
-            for i in range(len(p)):
-                points.append((p[i].radial, p[i].axial, p[i].__getattribute__(attribute)))
 
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
-
-        profiles = defaultdict(list)
-
-        for p in points:
-            profiles[p[1]].append(p)
-
-        for r, pts in profiles.items(): 
-            x = np.array([p[0] for p in pts])
-            y = np.array([p[1] for p in pts])
-            z = np.array([p[2] for p in pts])
-            ax.plot(x, y, z)
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
+        for i in range(7): 
+            x = np.array([p.radial for p in self.points[i]])
+            y = np.array([p.axial for p in self.points[i]])
+            z = np.array([p.__getattribute__(attribute) for p in self.points[i]])
+            ax.plot(x, y, z, color = col[i])
 
         ax.set_xlabel('Radial Position')
         ax.set_ylabel('Axial Position')
