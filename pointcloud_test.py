@@ -8,7 +8,7 @@ pointcloud_testdata.read_test_data()
 #pointcloud_testdata.shift_velocities()
 iteration_num = 0
 n = len(pointcloud_testdata.points)
-axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
+axial_dist = np.array([12, 6, 0, 24, 48, 84, 96])
 halfwidths = np.zeros(n)
 midpoints = np.zeros(n)
 max_velocities = np.zeros(n)

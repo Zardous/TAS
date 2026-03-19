@@ -52,7 +52,7 @@ class PointCloud:
 
         zerofive = self.points.pop(0)
         self.points.insert(1, zerofive)
-        
+
         print(f'Done')
         self.__shift_velocities()
         self.__filter()
@@ -176,9 +176,10 @@ class PointCloud:
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
-                    'velocity_rmsf': 'm/s',}
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
         
-        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#5500FF', '#0000FF']
+        col = ['#C80000', '#FF0040', '#FF00AA', '#FF00FF', '#AA00FF', '#6400FF', '#0000C8']
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
