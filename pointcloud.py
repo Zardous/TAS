@@ -171,12 +171,15 @@ class PointCloud:
         ax.set_zlim(0)
         plt.show()
 
-    def plot_2D(self, attribute, idx: None|np.ndarray|list):
+    def plot_2D(self, attribute, idx: None|np.ndarray|list = None):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
-                    'velocity_rmsf': 'm/s',}
+                    'velocity_rmsf': 'm/s',
+                    'voltage_mean': 'V',
+                    'velocity_turb_int': '-',
+                    }
         
         plt.title(attribute)
         if idx==None:
