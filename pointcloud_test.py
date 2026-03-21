@@ -43,11 +43,10 @@ for i in range(n):
     plt.title(f"Axial position {i}")
     plt.xlabel("Radial position")
     plt.ylabel("Velocity")
-    plt.legend()   
-    plt.show()
+    
 
     iteration_num += 1
-
+plt.show()
 plt.scatter(axial_dist, max_widths, label="Max velocity width vs axial distance")
 plt.title(f"Axial position {i}")
 plt.xlabel("Axial distance")

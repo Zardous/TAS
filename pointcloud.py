@@ -98,12 +98,14 @@ class PointCloud:
         return out
     
     def __check_for_tail_filter(self, array: np.ndarray):
-        max = np.max(array)
-        out = np.where(array/max<0.05)
-
-        #array.index(max)
+        max_val = np.max(array)
+        max_idx = np.argmax(array)
+        left = np.where((array / max_val < 0.05) & (np.arange(len(array)) < max_idx))[0]
+        right = np.where((array / max_val < 0.05) & (np.arange(len(array)) > max_idx))[0]
         
-        return out
+        print(f"left[-1]: {left[-1]}")
+        print(f"right[0]: {right[0]}")
+        return 
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
@@ -128,12 +130,13 @@ class PointCloud:
         return right_up_max, left_up_max, midpoint, max
     
     def find_core(self, vel: np.ndarray, pos: np.ndarray):
-        max = np.max(vel[0])
-        over_half, = np.where(vel[0]/max>=0.97)
+        if not hasattr(self, '_max_val'):
+            self._max_val = np.max(vel)
+        over_half, = np.where(vel / self._max_val >= 0.97)
         right_up_max_ = over_half[-1]
         left_up_max_ = over_half[0]
         return right_up_max_, left_up_max_
-    
+        
     def __shift_velocities(self):
         for lst in self.points:
             _,_,mid,_ = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
@@ -150,11 +153,12 @@ class PointCloud:
             for p, c in zip(lst, check):
                 if c and p.velocity_kurtosis<2000:
                     tmp.append(p)
+
             lst.clear()
             lst.extend(tmp)
 
-            vels = np.array([p.velocity_mean for p in lst])
-            print(self.__check_for_tail_filter(vels))
+            self.__check_for_tail_filter(vels)
+
         return 
     
     def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:

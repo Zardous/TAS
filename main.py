@@ -1,4 +1,4 @@
-from pointcloud import * # Also imports point.py
+from pointcloud import * # Also imports all the imports from pointcloud
 
 cloud = PointCloud()
 cloud.read_test_data()
