@@ -300,7 +300,7 @@ class PointCloud:
         ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
     
-    def plot_surface_array(self, arr, ax: axes._axes.Axes):
+    def plot_surface_from_array(self, arr, ax: axes._axes.Axes):
         fig = ax.get_figure()
         assert fig!=None
         ss = ax.get_subplotspec()
@@ -321,7 +321,7 @@ class PointCloud:
         ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
     
-    def plot_contour(self, attribute, ax: axes._axes.Axes):
+    def plot_contour_attr(self, attribute, ax: axes._axes.Axes):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
