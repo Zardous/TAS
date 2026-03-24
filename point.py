@@ -64,4 +64,3 @@ class point:
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
 
-# TODO: make correlation matrix

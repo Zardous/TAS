@@ -9,6 +9,7 @@ import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.axes as axes
+import matplotlib.tri as tri
 from collections import defaultdict
 
 class PointCloud:
@@ -161,15 +162,20 @@ class PointCloud:
 
         return 
     
-    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:
+    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> tuple[np.ndarray, point, np.ndarray]:
         main_pt = self.points[axial_idx][radial_idx]
-        main_atr = main_pt.__getattribute__(attribute)
-        m, s = main_atr.mean(), main_atr.std()
-        main_atr_norm = (main_atr-m)/s
+        pts = [p for lst in self.points for p in lst]
+        idx = pts.index(main_pt)
+        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (380, 100000)
+        m = arr.mean(axis=1, keepdims=True)
+        s = arr.std(axis=1, keepdims=True)
 
-        raise NotImplementedError
-        # unfinished
-        return
+        arr: np.ndarray = (arr-m)/s
+        # arr: np.ndarray = (arr-m)/m
+
+        corr = arr@arr.T / (100000-1) # shape (380, 380)
+        main_corr_value: np.ndarray = corr[idx, idx]
+        return corr[idx], main_pt, main_corr_value
 
     def plot(self, attribute):
 
@@ -216,7 +222,7 @@ class PointCloud:
         ax.legend()
         return ax
 
-    def plot_surface(self, attribute, ax: axes._axes.Axes):
+    def plot_surface_attr(self, attribute, ax: axes._axes.Axes):
         fig = ax.get_figure()
         assert fig!=None
         ss = ax.get_subplotspec()
@@ -237,4 +243,50 @@ class PointCloud:
         y = np.array([p.axial for lst in self.points for p in lst])
         z = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst])
         ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
+        return ax
+    
+    def plot_surface_array(self, arr, ax: axes._axes.Axes):
+        fig = ax.get_figure()
+        assert fig!=None
+        ss = ax.get_subplotspec()
+        fig.delaxes(ax)
+        ax = fig.add_subplot(ss, projection='3d')
+        suffixes = {'velocity_mean': 'm/s',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
+        
+        ax.set_xlabel('x/d')
+
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = arr
+        ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
+        return ax
+    
+    def plot_contour(self, attribute, ax: axes._axes.Axes):
+        suffixes = {'velocity_mean': 'm/s',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
+        
+        ax.set_title(attribute)
+        ax.set_ylabel('axial distance')
+        ax.set_xlabel('x/d')
+
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst])
+
+        triang = tri.Triangulation(x.flatten(), y.flatten())
+        
+        highest = z.max()
+        cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF")
+        cf2 = ax.tricontourf(triang, z.flatten(), levels=50, cmap='viridis', vmin=0, vmax=z.max())
+
+        ax.legend()
         return ax
