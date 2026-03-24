@@ -82,4 +82,3 @@ class point:
 
         return ax
 
-# TODO: make correlation matrix
