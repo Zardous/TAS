@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 from pointcloud import PointCloud
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 ptcld = PointCloud()
 ptcld.read_cal_data()
@@ -132,6 +133,8 @@ voltage_5D = degree.fit_transform(test.reshape(-1,1))
 v_pred = poly.predict(voltage_5D)
 print(poly.coef_)
 print(poly.intercept_)
+print(r2_score(velocity,poly))
+
 plt.scatter(voltage, velocity)      
 plt.plot(test, v_pred, color = "red")
 plt.title("Calibration Curve")
