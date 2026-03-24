@@ -197,7 +197,6 @@ class PointCloud:
         return corr[idx], main_pt, main_corr_value
 
     def plot(self, attribute):
-
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
@@ -211,7 +210,6 @@ class PointCloud:
         ax.set_ylabel('Axial Position')
         ax.set_zlabel('Velocity')
         ax.set_zlim(0)
-        plt.show()
 
     def plot_2D(self, attribute, idx: None|np.ndarray|list, ax, scatter = False):
         suffixes = {'velocity_mean': 'm/s',
