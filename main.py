@@ -23,20 +23,14 @@ fig.show()
 #    plt.close(fig)
 
 axial_layer = 4
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
+
+fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 
 def update(i):
-    ax1.clear()  
-    ax2.clear()  
-    ax3.clear()  
-    ax4.clear() 
-    cloud.points[0][i].plot_distribution(ax1, 40)
-    cloud.points[1][i].plot_distribution(ax2, 40)
-    cloud.points[2][i].plot_distribution(ax3, 40)
-    cloud.points[3][i].plot_distribution(ax4, 40)
-    
+    ax.clear()  
+    cloud.points[axial_layer][i].plot_distribution(ax, 40)
 
-anim = FuncAnimation(fig, update, frames=len(cloud.points[axial_layer])-5, interval=200, repeat=True)
+anim = FuncAnimation(fig, update, frames=len(cloud.points[axial_layer]), interval=200, repeat=True)
 fig.show() 
 
 

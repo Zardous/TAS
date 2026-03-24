@@ -66,7 +66,7 @@ class point:
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
     
-    def plot_distribution(self, ax, bin_number):
+    def plot_distribution(self, ax, bin_number, color_code='blue'):
         ax.set_title(f"Point at Axial Dist: {self.axial} Radial Dist: {self.radial:0.2f}")
         ax.set_xlabel("Velocity [m/s]")
         ax.set_xlim(0,10)
@@ -78,7 +78,7 @@ class point:
         counts = counts/counts.sum()
 
         bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-        ax.bar(bin_centers, counts, width=np.diff(bin_edges), color = 'blue', alpha = 0.5, edgecolor='black')
+        ax.bar(bin_centers, counts, width=np.diff(bin_edges), color = color_code, alpha = 0.5, edgecolor='black')
 
         return ax
 
