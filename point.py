@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from scipy import stats
 
 class point:
     def __init__(self, radial_pos, axial_pos, voltage_data):
@@ -58,7 +59,6 @@ class point:
     def __kurtosis(self):
         velocity_error_nume = np.zeros(len(self.velocity_arr))
         velocity_error_denom = np.zeros(len(self.velocity_arr))
-
         velocity_error_nume = (self.velocity_arr - self.velocity_mean)**4
         velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)

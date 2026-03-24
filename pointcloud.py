@@ -8,6 +8,7 @@ from point import point
 import sys, os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.axes as axes
 from collections import defaultdict
 
 class PointCloud:
@@ -50,6 +51,9 @@ class PointCloud:
 
             self.points.append(current_list)
 
+        zerofive = self.points.pop(0)
+        self.points.insert(1, zerofive)
+
         print(f'Done')
         self.__shift_velocities()
         self.__filter()
@@ -85,22 +89,23 @@ class PointCloud:
         return data
 
     def __check_for_filter(self, array: np.ndarray):
-        '''
-        Sets points to NaN if they are less than 10% of the average of its neighbours
-
-        At endpoints of the array it uses only one neighbour
-        '''
         left = array.copy()
         left[:-1] = array[1:]
-
         right = array.copy()
         right[1:] = right[:-1]
-
         mid = (left+right)/2
-
         out = np.where(0.9<array/mid, True, False)
-        # print(f'Warning: filter interpolates data')
         return out
+    
+    def __check_for_tail_filter(self, array: np.ndarray):
+        max_val = np.max(array)
+        max_idx = np.argmax(array)
+        left = np.where((array / max_val < 0.05) & (np.arange(len(array)) < max_idx))[0]
+        right = np.where((array / max_val < 0.05) & (np.arange(len(array)) > max_idx))[0]
+        
+        print(f"left[-1]: {left[-1]}")
+        print(f"right[0]: {right[0]}")
+        return 
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
@@ -124,6 +129,14 @@ class PointCloud:
 
         return right_up_max, left_up_max, midpoint, max
     
+    def find_core(self, vel: np.ndarray, pos: np.ndarray):
+        if not hasattr(self, '_max_val'):
+            self._max_val = np.max(vel)
+        over_half, = np.where(vel / self._max_val >= 0.97)
+        right_up_max_ = over_half[-1]
+        left_up_max_ = over_half[0]
+        return right_up_max_, left_up_max_
+        
     def __shift_velocities(self):
         for lst in self.points:
             _,_,mid,_ = self.find_mid(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
@@ -134,36 +147,40 @@ class PointCloud:
     def __filter(self):
         for lst in self.points:
             tmp = []
-            # print(len(lst))
             vels = np.array([p.velocity_mean for p in lst])
             check = self.__check_for_filter(vels)
+
             for p, c in zip(lst, check):
-                if c:
+                if c and p.velocity_kurtosis<2000:
                     tmp.append(p)
+
             lst.clear()
             lst.extend(tmp)
-            # print(len(lst))
 
-    def plot(self):
-        points = []
-        for p in self.points:
-            for i in range(len(p)):
-                points.append((p[i].radial, p[i].axial, p[i].velocity_mean))
+            self.__check_for_tail_filter(vels)
+
+        return 
+    
+    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:
+        main_pt = self.points[axial_idx][radial_idx]
+        main_atr = main_pt.__getattribute__(attribute)
+        m, s = main_atr.mean(), main_atr.std()
+        main_atr_norm = (main_atr-m)/s
+
+        raise NotImplementedError
+        # unfinished
+        return
+
+    def plot(self, attribute):
 
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
-
-        profiles = defaultdict(list)
-
-        for p in points:
-            profiles[p[1]].append(p)
-
-        for r, pts in profiles.items(): 
-            x = np.array([p[0] for p in pts])
-            y = np.array([p[1] for p in pts])
-            z = np.array([p[2] for p in pts])
-            x = x - self.find_mid(z, x)
-            ax.plot(x, y, self.__check_for_filter(z))
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
+        for i in range(7): 
+            x = np.array([p.radial for p in self.points[i]])
+            y = np.array([p.axial for p in self.points[i]])
+            z = np.array([p.__getattribute__(attribute) for p in self.points[i]])
+            ax.plot(x, y, z, color = col[i])
 
         ax.set_xlabel('Radial Position')
         ax.set_ylabel('Axial Position')
@@ -171,26 +188,53 @@ class PointCloud:
         ax.set_zlim(0)
         plt.show()
 
-    def plot_2D(self, attribute, idx: None|np.ndarray|list):
+    def plot_2D(self, attribute, idx: None|np.ndarray|list, ax):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
-                    'velocity_rmsf': 'm/s',}
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
         
-        plt.title(attribute)
+        col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
+        ax.set_title(attribute)
+        ax.set_ylabel(suffixes[attribute])
+        ax.set_xlabel('x/d')
+
         if idx==None:
             for i in range(7): 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                plt.plot(x, y)
+                ax.scatter(x, y, color=col[i], label = str(self.points[i][0].axial))
+                
         else:
             for i in idx: 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                plt.plot(x, y)
+                ax.scatter(x, y, color=col[i])
 
-        plt.ylabel(suffixes[attribute])
-        plt.xlabel('x/d')
+        ax.legend()
+        return ax
 
-        plt.show()
+    def plot_surface(self, attribute, ax: axes._axes.Axes):
+        fig = ax.get_figure()
+        assert fig!=None
+        ss = ax.get_subplotspec()
+        fig.delaxes(ax)
+        ax = fig.add_subplot(ss, projection='3d')
+        suffixes = {'velocity_mean': 'm/s',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
+        
+        ax.set_title(attribute)
+        ax.set_ylabel(suffixes[attribute])
+        ax.set_xlabel('x/d')
+
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst])
+        ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
+        return ax
