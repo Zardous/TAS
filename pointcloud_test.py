@@ -36,11 +36,13 @@ for i in range(n):
     right_up_max, left_up_max, max, midpoint = pointcloud_testdata.find_mid(vel, pos)
     right_up_max_, left_up_max_ = pointcloud_testdata.find_core(vel, pos)
     #print(midpoint)
+    
+    
     '''
     print(f'Left up pos max: {pos[left_up_max_]}, Right up pos max: {pos[right_up_max_]}')
     print(f'Left up max: {left_up_max_}, Right up max: {right_up_max_}')
      '''                        
-    halfwidths[i] = (pos[right_up] - pos[left_up]) / 2 
+    halfwidths[i] = (pos[right_up] - pos[left_up]) / 2 + midpoint
     
     midpoints[i] = midpoint
     
@@ -56,9 +58,9 @@ for i in range(n):
         right_core[i] = np.nan
 
     max_velocities[i] = max
-    
-    left_halfwidths[i] = (pos[left_up] + pos[left_down])/2
-    right_halfwidths[i] = (pos[right_up] + pos[right_down])/2
+    #need to remove the shift of the halfwidths at each axial position to get the pole
+    left_halfwidths[i] = (pos[left_up] + pos[left_down])/2 - (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
+    right_halfwidths[i] = (pos[right_up] + pos[right_down])/2 - (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
     '''
     plt.scatter(pos, vel, label=f"Velocity profile{i}")
     plt.axhline(y=vel[left_up],     color='green', linestyle='--', label="Halfwidth velocity")
@@ -122,6 +124,9 @@ x_clean, y_leftcore_clean, y_rightcore_clean = axial_dist[valid_idx], left_core[
 m_left, c_left = np.polyfit(x_clean, y_leftcore_clean, 1)
 m_right, c_right = np.polyfit(x_clean, y_rightcore_clean, 1)
 
+x_inter_left = -c_left / m_left
+x_inter_right = -c_right / m_right
+
 x_intersect = (c_right - c_left) / (m_left - m_right)
 y_intersect = m_left * x_intersect + c_left
 
@@ -136,6 +141,9 @@ plt.scatter(axial_dist, right_core)
 plt.plot(x_extrapolate, y_left_line, color='gray', linestyle='--', label='Left Core Extrapolation')
 plt.plot(x_extrapolate, y_right_line, color='orange', linestyle='--', label='Right Core Extrapolation')
 plt.scatter(x_intersect, y_intersect, color='red', label='Estimated Core Collapse Point')
+plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
+plt.axvline(x=x_inter_left, color='blue', linestyle=':', label=f'Leftmost pole position: x={x_inter_left:.2f}')
+plt.axvline(x=x_inter_right, color='green', linestyle=':', label=f'Rightmost pole position: x={x_inter_right:.2f}')
 plt.title("Potential Core Radius Extrapolation")
 plt.xlabel("Axial Distance")
 plt.ylabel("Potential Core Radius")
@@ -185,18 +193,21 @@ plt.show()
 plt.figure(figsize=(10, 6))
 plt.scatter(axial_dist, left_core)
 plt.scatter(axial_dist, right_core)
-plt.plot(x_extrapolate, y_left_line, color='gray', linestyle='--', label='Left Core Extrapolation')
+plt.plot(x_extrapolate, y_left_line, color='blue', linestyle='--', label='Left Core Extrapolation')
 plt.plot(x_extrapolate, y_right_line, color='orange', linestyle='--', label='Right Core Extrapolation')
 plt.scatter(x_intersect, y_intersect, color='red', label='Estimated Core Collapse Point')
 plt.scatter(axial_dist, left_halfwidths)
 plt.scatter(axial_dist, right_halfwidths)
-plt.plot(x_extrapolate_half, y_haleft_line, color='gray', linestyle='--', label='Left Halfwidth Extrapolation')
+plt.plot(x_extrapolate_half, y_haleft_line, color='blue', linestyle='--', label='Left Halfwidth Extrapolation')
 plt.plot(x_extrapolate_half, y_haright_line, color='orange', linestyle='--', label='Right Halfwidth Extrapolation')
 plt.axvline(x=x_intercept_left, color='blue', linestyle=':', label=f'Leftmost pole position: x={x_intercept_left:.2f}')
 plt.axvline(x=x_intercept_right, color='green', linestyle=':', label=f'Rightmost pole position: x={x_intercept_right:.2f}')
 plt.scatter(x_hal_intersect, y_hal_intersect, color='red', label='Estimated Pole Position')
+plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
+plt.axvline(x=x_inter_left, color='blue', linestyle=':', label=f'Leftmost pole position: x={x_inter_left:.2f}')
+plt.axvline(x=x_inter_right, color='green', linestyle=':', label=f'Rightmost pole position: x={x_inter_right:.2f}')
 plt.axhline(y=0, color='gray', linestyle='--')
-plt.title("Halfwidth Extrapolation")
+plt.title("messy combined graph")
 plt.xlabel("Axial Distance")
 plt.ylabel("Halfwidth")
 plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
