@@ -97,15 +97,19 @@ class PointCloud:
         out = np.where(0.9<array/mid, True, False)
         return out
     
-    def __check_for_tail_filter(self, array: np.ndarray):
+    def __check_for_tail_filter(self, array: np.ndarray, p_rec_min):
         max_val = np.max(array)
         max_idx = np.argmax(array)
-        left = np.where((array / max_val < 0.05) & (np.arange(len(array)) < max_idx))[0]
-        right = np.where((array / max_val < 0.05) & (np.arange(len(array)) > max_idx))[0]
-        
-        print(f"left[-1]: {left[-1]}")
-        print(f"right[0]: {right[0]}")
-        return 
+
+        left = np.where((array / max_val < p_rec_min) & (np.arange(len(array)) < max_idx))[0]
+        right = np.where((array / max_val < p_rec_min) & (np.arange(len(array)) > max_idx))[0]
+
+        l = left[-1] if len(left) > 0 else 0
+        r = right[0] if len(right) > 0 else len(array) - 1
+
+        mask = np.zeros_like(array, dtype=bool)
+        mask[l:(r+1)] = True
+        return mask
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
@@ -133,8 +137,12 @@ class PointCloud:
         if not hasattr(self, '_max_val'):
             self._max_val = np.max(vel)
         over_half, = np.where(vel / self._max_val >= 0.97)
-        right_up_max_ = over_half[-1]
-        left_up_max_ = over_half[0]
+        right_up_max_ = np.nan
+        left_up_max_ = np.nan
+        if over_half.size== 0: print('No point above 97% of max value')
+        else:
+            right_up_max_ = over_half[-1]
+            left_up_max_ = over_half[0]
         return right_up_max_, left_up_max_
         
     def __shift_velocities(self):
@@ -157,8 +165,17 @@ class PointCloud:
             lst.clear()
             lst.extend(tmp)
 
-            self.__check_for_tail_filter(vels)
+            tmp2 = []
+            vels2 = np.array([p.velocity_mean for p in lst])
+            check2  = self.__check_for_tail_filter(vels2, 0.05)
+            print(check2)
+            for p, c2 in zip(lst, check2):
+                if c2:
+                    tmp2.append(p)
 
+            lst.clear()
+            lst.extend(tmp2)
+            
         return 
     
     def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:
@@ -190,11 +207,11 @@ class PointCloud:
 
     def plot_2D(self, attribute, idx: None|np.ndarray|list, ax):
         suffixes = {'velocity_mean': 'm/s',
-                    'velocity_skewness': '-',
-                    'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
                     'velocity_rmsf': 'm/s',
-                    'velocity_turb_int': '-'}
+                    'velocity_turb_int': '-',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-'}
         
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(attribute)
@@ -205,14 +222,17 @@ class PointCloud:
             for i in range(7): 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.scatter(x, y, color=col[i], label = str(self.points[i][0].axial))
+                ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
+                ax.axhline(0, color = 'black', linewidth = 1)
+                ax.grid()
                 
         else:
             for i in idx: 
                 x = np.array([p.radial for p in self.points[i]])
                 y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-                ax.scatter(x, y, color=col[i])
-
+                ax.plot(x, y, color=col[i])
+                ax.axhline(0, color = 'black', linewidth = 1)
+                ax.grid()
         ax.legend()
         return ax
 
@@ -223,6 +243,9 @@ class PointCloud:
         fig.delaxes(ax)
         ax = fig.add_subplot(ss, projection='3d')
         suffixes = {'velocity_mean': 'm/s',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
                     'velocity_std': 'm/s',
