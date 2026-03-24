@@ -116,6 +116,7 @@ plt.ylabel("Halfwidth")
 plt.show()
 
 valid_idx = ~np.isnan(left_core) & ~np.isnan(right_core)
+
 x_clean, y_leftcore_clean, y_rightcore_clean = axial_dist[valid_idx], left_core[valid_idx], right_core[valid_idx]
 
 m_left, c_left = np.polyfit(x_clean, y_leftcore_clean, 1)
@@ -139,4 +140,65 @@ plt.title("Potential Core Radius Extrapolation")
 plt.xlabel("Axial Distance")
 plt.ylabel("Potential Core Radius")
 plt.legend()
+plt.show()
+
+valid_idx_half = ~np.isnan(left_halfwidths) & ~np.isnan(right_halfwidths)
+
+x_clean, y_haleft_clean, y_haright_clean = axial_dist[valid_idx_half], left_halfwidths[valid_idx_half], right_halfwidths[valid_idx_half]
+m_haleft, c_haleft = np.polyfit(x_clean, y_haleft_clean, 1)
+m_haright, c_haright = np.polyfit(x_clean, y_haright_clean, 1)
+
+
+
+x_hal_intersect = (c_haright - c_haleft) / (m_haleft - m_haright)
+
+y_hal_intersect = m_haleft * x_hal_intersect + c_haleft
+
+x_intercept_left = -c_haleft / m_haleft
+x_intercept_right = -c_haright / m_haright
+
+x_extrapolate_half = np.linspace(x_hal_intersect*1.2, 100, 101)
+
+x_poleposition = np.linspace(x_intercept_right, x_intercept_left, 101)
+
+y_haleft_line = m_haleft * x_extrapolate_half + c_haleft
+
+y_haright_line = m_haright * x_extrapolate_half + c_haright
+
+plt.figure(figsize=(10, 6))
+plt.scatter(axial_dist, left_halfwidths)
+plt.scatter(axial_dist, right_halfwidths)
+plt.plot(x_extrapolate_half, y_haleft_line, color='gray', linestyle='--', label='Left Halfwidth Extrapolation')
+plt.plot(x_extrapolate_half, y_haright_line, color='orange', linestyle='--', label='Right Halfwidth Extrapolation')
+plt.axvline(x=x_intercept_left, color='blue', linestyle=':', label=f'Leftmost pole position: x={x_intercept_left:.2f}')
+plt.axvline(x=x_intercept_right, color='green', linestyle=':', label=f'Rightmost pole position: x={x_intercept_right:.2f}')
+plt.scatter(x_hal_intersect, y_hal_intersect, color='red', label='Estimated Pole Position')
+plt.axhline(y=0, color='black', linestyle='-')
+plt.title("Halfwidth Extrapolation")
+plt.xlabel("Axial Distance")
+plt.ylabel("Halfwidth")
+
+plt.legend(loc='upper right', fontsize='small')
+plt.show()
+
+
+plt.figure(figsize=(10, 6))
+plt.scatter(axial_dist, left_core)
+plt.scatter(axial_dist, right_core)
+plt.plot(x_extrapolate, y_left_line, color='gray', linestyle='--', label='Left Core Extrapolation')
+plt.plot(x_extrapolate, y_right_line, color='orange', linestyle='--', label='Right Core Extrapolation')
+plt.scatter(x_intersect, y_intersect, color='red', label='Estimated Core Collapse Point')
+plt.scatter(axial_dist, left_halfwidths)
+plt.scatter(axial_dist, right_halfwidths)
+plt.plot(x_extrapolate_half, y_haleft_line, color='gray', linestyle='--', label='Left Halfwidth Extrapolation')
+plt.plot(x_extrapolate_half, y_haright_line, color='orange', linestyle='--', label='Right Halfwidth Extrapolation')
+plt.axvline(x=x_intercept_left, color='blue', linestyle=':', label=f'Leftmost pole position: x={x_intercept_left:.2f}')
+plt.axvline(x=x_intercept_right, color='green', linestyle=':', label=f'Rightmost pole position: x={x_intercept_right:.2f}')
+plt.scatter(x_hal_intersect, y_hal_intersect, color='red', label='Estimated Pole Position')
+plt.axhline(y=0, color='gray', linestyle='--')
+plt.title("Halfwidth Extrapolation")
+plt.xlabel("Axial Distance")
+plt.ylabel("Halfwidth")
+plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
+plt.legend(loc='upper left', fontsize='small')
 plt.show()
