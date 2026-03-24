@@ -22,7 +22,6 @@ HW_voltage_calibration1 =[] #[V]
 HW_voltage_calibration2 = [] #[V]
 list1, list2 = ptcld.points
 
-
 for p in list1:
     HW_voltage_calibration1.append(p.voltage_mean)
 HW_voltage_calibration1.sort()
@@ -47,12 +46,10 @@ water_column_height = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] #[mmH2O]
 Valydine_voltage = [0.001, 0.065, 0.119, 0.182, 0.244, 0.299, 0.367, 0.424, 0.482, 0.535, 0.598] #[V]
 
 VALYDINE_voltage_calibration1  = [0.002, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.091, 0.110, 0.131, 0.150, 0.191, 0.235, 0.274, 0.313, 0.343, 0.399, 0.454] #[V]
-
 VALYDINE_voltage_calibration2 = [0.002, 0.011, 0.021, 0.029, 0.040, 0.050, 0.06, 0.071, 0.080, 0.09, 0.1, 0.13, 0.154, 0.190, 0.234, 0.272, 0.312, 0.349, 0.402, 0.451] #[V]
 
 
 # pressure to velocity
-
 def p_to_v(column_height):
     pressure = g * column_height # [Pa]
     velocity=np.sqrt(2*pressure/air_density) # [m/s]
@@ -63,10 +60,8 @@ for i in water_column_height:
     velocity_values.append(p_to_v(i))
 
 # Valydine voltage to velocity
-
 #plt.plot(Valydine_voltage, velocity_values)
 #plt.show()
-
 # Valydine to velocity interpolation
     # f: velocity, xi: Valydine:
     # x: valydine from calibrations, grid: valydine voltage for which we already know the velocity
@@ -89,43 +84,34 @@ def phi(x, grid, f, basis):
         
     return interpolant
 
-
-plt.plot(Valydine_voltage, phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)) 
+'''plt.plot(Valydine_voltage, phi(Valydine_voltage, Valydine_voltage, velocity_values, lagrange_basis_func)) 
 plt.plot(Valydine_voltage, velocity_values, 'o')   
-#plt.show()
+plt.show()'''
 
 # calibration Valydine to velocity
 velocity_cal1 = phi(VALYDINE_voltage_calibration1, Valydine_voltage, velocity_values, lagrange_basis_func)
-print("velocity_cal1.shape:", velocity_cal1.shape)
-
 velocity_cal2 = phi(VALYDINE_voltage_calibration2, Valydine_voltage, velocity_values, lagrange_basis_func)
-plt.plot(Valydine_voltage, velocity_values, 'o', label="known data")
 
+'''plt.plot(Valydine_voltage, velocity_values, 'o', label="known data")
 plt.plot(VALYDINE_voltage_calibration1, velocity_cal1, 'x', label="calibration 1")
 plt.plot(VALYDINE_voltage_calibration2, velocity_cal2, 's', label="calibration 2")
-
 plt.xlabel("Valydine Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.legend()
-plt.show()
+plt.show()'''
 
 # HWA to velocity
-print("velocity cal1", velocity_cal1)
-print("HWAcal1",HW_voltage_calibration1)
 #HW_voltage_calibration1 = HW_voltage_calibration1.tolist()
 #HW_voltage_calibration2 = HW_voltage_calibration2.tolist()
 
 voltage = np.append(HW_voltage_calibration1,  HW_voltage_calibration2)
-print(f'voltage shape {voltage.shape}')
 velocity = np.append(velocity_cal1, velocity_cal2)
 
-
-print("velocity:", velocity)
+'''print("velocity:", velocity)
 print("voltage:", voltage)
 plt.plot(voltage, velocity)  
 plt.scatter(voltage, velocity)
-plt.show()
-#quit()
+plt.show()'''
 
 def model(x,y):
 
@@ -142,13 +128,17 @@ poly = model(voltage, velocity)
 #voltage_poly = PolynomialFeatures.transform(voltage)
 degree = PolynomialFeatures(degree=4)
 test = np.linspace(0, 2.5, 50)
-HW_voltage_calibration1_5D = degree.fit_transform(test.reshape(-1,1)) 
-v_pred = poly.predict(HW_voltage_calibration1_5D)
+voltage_5D = degree.fit_transform(test.reshape(-1,1)) 
+v_pred = poly.predict(voltage_5D)
 print(poly.coef_)
 print(poly.intercept_)
 plt.scatter(voltage, velocity)      
-plt.plot(test, v_pred)
-plt.title("Checking for the right polynomial")
+plt.plot(test, v_pred, color = "red")
+plt.title("Calibration Curve")
+plt.xlabel("Hot Vire Voltage [V]")
+plt.ylabel("Velocity [m/s]")
+plt.xlim(left=1.5)
+plt.ylim(bottom=0, top=13)
 plt.show()
    
 #def poly_func(x, y):
