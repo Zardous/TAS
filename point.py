@@ -1,6 +1,8 @@
 import math
 import numpy as np
 from scipy import stats
+import matplotlib.pyplot as plt
+import matplotlib.axes as axes
 
 class point:
     def __init__(self, radial_pos, axial_pos, voltage_data):
@@ -37,7 +39,7 @@ class point:
     def __std_velocity(self):
         std_velocity = self.velocity_arr.std()
         return std_velocity
-
+        
     def __rms_fluctuations(self):
         velocity_error = np.zeros(len(self.velocity_arr))
         velocity_error = (self.velocity_arr - self.velocity_mean )**2
@@ -63,5 +65,21 @@ class point:
         velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
+    
+    def plot_distribution(self, ax, bin_number):
+        ax.set_title(f"Point at Axial Dist: {self.axial} Radial Dist: {self.radial:0.2f}")
+        ax.set_xlabel("Velocity [m/s]")
+        ax.set_xlim(0,10)
+        ax.set_ylim(0,0.3)
+        ax.set_ylabel('Occurance Frequency []')
+
+        counts, bin_edges = np.histogram(self.velocity_arr, bins=bin_number, range=(0, 10))
+  
+        counts = counts/counts.sum()
+
+        bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        ax.bar(bin_centers, counts, width=np.diff(bin_edges), color = 'blue', alpha = 0.5, edgecolor='black')
+
+        return ax
 
 # TODO: make correlation matrix
