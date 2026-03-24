@@ -177,8 +177,16 @@ class PointCloud:
             lst.extend(tmp2)
             
         return 
-            
+    
+    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> list[np.ndarray]:
+        main_pt = self.points[axial_idx][radial_idx]
+        main_atr = main_pt.__getattribute__(attribute)
+        m, s = main_atr.mean(), main_atr.std()
+        main_atr_norm = (main_atr-m)/s
 
+        raise NotImplementedError
+        # unfinished
+        return
 
     def plot(self, attribute):
 
@@ -239,16 +247,17 @@ class PointCloud:
                     'velocity_rmsf': 'm/s',
                     'velocity_turb_int': '-',
                     'velocity_skewness': '-',
-                    'velocity_kurtosis': '-'}
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
+        
         ax.set_title(attribute)
         ax.set_ylabel(suffixes[attribute])
         ax.set_xlabel('x/d')
 
-        for i in range(7): 
-            x = np.array([p.radial for p in self.points[i]])
-            y = np.array([p.axial for p in self.points[i]])
-            z = np.array([p.__getattribute__(attribute) for p in self.points[i]])
-            ax.plot_trisurf(x, y, z, antialiased=True)
-
-        ax.legend()
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst])
+        ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
