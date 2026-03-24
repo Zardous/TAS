@@ -137,9 +137,9 @@ class PointCloud:
         if not hasattr(self, '_max_val'):
             self._max_val = np.max(vel)
         over_half, = np.where(vel / self._max_val >= 0.97)
-        right_up_max_ = 0
-        left_up_max_ = 0
-        if over_half.size==0: print('No point above 97% of max value')
+        right_up_max_ = np.nan
+        left_up_max_ = np.nan
+        if over_half.size== 0: print('No point above 97% of max value')
         else:
             right_up_max_ = over_half[-1]
             left_up_max_ = over_half[0]
