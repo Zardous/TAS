@@ -97,6 +97,7 @@ print(f"Hot Wire Voltages 2: {HW_voltage_calibration2}")
 #plt.scatter(Valydine_voltage, velocity_values, label='data')
 #plt.plot(voltages_test, p(voltages_test), label='poly curve')
 
+#Function that has hw voltages as input and velocities as output
 def v_to_u_func(E_array, A, B, n):
 
     velo = np.maximum(0, E_array**2 - A) / B
@@ -105,6 +106,7 @@ def v_to_u_func(E_array, A, B, n):
 
 velo_test = v_to_u_func(HW_voltage_calibration1, A_best, B_best, n_best)
 
+#plot velocity vs voltage, scatter is with velo from polymial(valydine) and the curve is with velo from king's
 plt.scatter(HW_voltage_calibration1, velo_test, label='data')
 plt.plot(HW_voltage_calibration1, velo_cal1, label='king function')
 
