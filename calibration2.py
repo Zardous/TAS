@@ -57,7 +57,7 @@ for i in water_column_height:
 
 
 #Polynomial to fit the velocities from water column to val voltages
-m = 9
+m = 10  #king looks best with m=10 or m=11
 coeffs = np.polyfit(Valydine_voltage, velocity_values, m)
 
 p=np.poly1d(coeffs)
@@ -81,13 +81,15 @@ def kings_law(E, A, B, n):
 initial_guess = [0.5, 0.5, 0.45] 
 popt, pcov = curve_fit(kings_law, HW_voltage_calibration1, velo_cal1, p0=initial_guess)
 
+#Best fitting coefficients
 A_best, B_best, n_best = popt
 
 
 #show coeffs
 print(f"Best coefficients: A={A_best:.4f}, B={B_best:.4f}, n={n_best:.4f}")
 
-
+print(f"Hot Wire Voltages 1: {HW_voltage_calibration1}")
+print(f"Hot Wire Voltages 2: {HW_voltage_calibration2}")
 
 
 
@@ -95,9 +97,16 @@ print(f"Best coefficients: A={A_best:.4f}, B={B_best:.4f}, n={n_best:.4f}")
 #plt.scatter(Valydine_voltage, velocity_values, label='data')
 #plt.plot(voltages_test, p(voltages_test), label='poly curve')
 
+def v_to_u_func(E_array, A, B, n):
 
+    velo = np.maximum(0, E_array**2 - A) / B
 
+    return velo**(1/n)
 
+velo_test = v_to_u_func(HW_voltage_calibration1, A_best, B_best, n_best)
+
+plt.scatter(HW_voltage_calibration1, velo_test, label='data')
+plt.plot(HW_voltage_calibration1, velo_cal1, label='king function')
 
 
 plt.show()
