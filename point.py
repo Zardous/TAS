@@ -17,6 +17,7 @@ class point:
         self.velocity_turb_int = self.__turbulence_intensity()
         self.velocity_skewness = self.__skewness()
         self.velocity_kurtosis = self.__kurtosis()
+        self.bin_fraction_arr, self.bin_value_arr = self.__distribution(bin_number=40)
 
     def __voltage_arr_to_velocity_arr(self):
         velocity_arr = np.zeros(len(self.voltage_arr))
@@ -74,6 +75,11 @@ class point:
         velocity_error_denom = (self.velocity_arr - self.velocity_mean)**2
         kurtosis = (velocity_error_nume.sum() / len(self.velocity_arr)) / ((velocity_error_denom.sum() / len(self.velocity_arr))**2)
         return kurtosis
+    
+    def __distribution(self, bin_number=40):
+        counts, bin_edges = np.histogram(self.velocity_arr, bins=bin_number, range=(0, 12))
+        bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+        return counts/counts.sum(), bin_centers
     
     def plot_distribution(self, ax, bin_number, color_code='blue'):
         ax.set_title(f"Point at Axial Dist: {self.axial} Radial Dist: {self.radial:0.2f}")

@@ -182,15 +182,22 @@ class PointCloud:
             lst.extend(tmp2)
         return 
     
-    def correlate(self, axial_idx: int, radial_idx: int, attribute, corr_function: Callable) -> tuple[np.ndarray, point, np.ndarray]:
-        main_pt = self.points[axial_idx][radial_idx]
+    def full_cross_correlation(self, axial_idx: int, radial_idx: int, corr_function: Callable) -> tuple[np.ndarray, point, np.ndarray]:
+        # auto correlation (spectral analysis?)
+        # -5/3 law
+        try:
+            main_point = self.points[axial_idx][radial_idx]
+        except IndexError as e:
+            print(f'Ranges are {tuple(len(lst) for lst in self.points)}')
+            print(e)
+            quit()
         pts = [p for lst in self.points for p in lst]
-        idx = pts.index(main_pt)
-        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (310, 100000)
+        idx = pts.index(main_point)
+        arr = np.array([p.velocity_arr for lst in self.points for p in lst]) # shape (310, 100000)
 
-        corr = corr_function(arr, main_pt.__getattribute__(attribute)) # shape (310, 1)
+        corr = corr_function(arr=arr, ref_arr=main_point.velocity_arr, main_point=main_point) # shape (310, 1)
         main_corr_value: np.ndarray = corr[idx]
-        return corr, main_pt, main_corr_value
+        return corr, main_point, main_corr_value
 
     def plot(self, attribute):
         fig = plt.figure()
@@ -207,7 +214,7 @@ class PointCloud:
         ax.set_zlabel('Velocity')
         ax.set_zlim(0)
 
-    def plot_2D(self, attribute, idx: None|np.ndarray|list, ax, scatter = False):
+    def plot_2Dgraph_from_attr_name(self, attribute, idx: None|np.ndarray|list, ax, scatter = False):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_std': 'm/s',
                     'velocity_norm': '-',
@@ -271,7 +278,7 @@ class PointCloud:
         ax.legend()
         return ax
 
-    def plot_surface_attr(self, attribute, ax: axes._axes.Axes):
+    def plot_3Dsurface_from_attr_name(self, attribute, ax: axes._axes.Axes):
         fig = ax.get_figure()
         assert fig!=None
         ss = ax.get_subplotspec()
@@ -294,7 +301,7 @@ class PointCloud:
         ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
     
-    def plot_surface_from_array(self, arr, ax: axes._axes.Axes):
+    def plot_3Dsurface_from_array(self, array, ax: axes._axes.Axes):
         fig = ax.get_figure()
         assert fig!=None
         ss = ax.get_subplotspec()
@@ -311,11 +318,11 @@ class PointCloud:
 
         x = np.array([p.radial for lst in self.points for p in lst])
         y = np.array([p.axial for lst in self.points for p in lst])
-        z = arr
+        z = array
         ax.plot_trisurf(x, y, z, antialiased=False, edgecolor='none', cmap='viridis')
         return ax
     
-    def plot_contour_attr(self, attribute, ax: axes._axes.Axes):
+    def plot_2Dcontour_from_attr_name(self, attribute, ax: axes._axes.Axes):
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
@@ -340,11 +347,53 @@ class PointCloud:
         ax.legend()
         return ax
 
-    def ks(self, arr, ref_arr):
-        return np.zeros((310, 1))
+    def plot_2Dcontour_from_array(self, array, ax: axes._axes.Axes, levels=50, transparency=0.5):
+        suffixes = {'velocity_mean': 'm/s',
+                    'velocity_skewness': '-',
+                    'velocity_kurtosis': '-',
+                    'velocity_std': 'm/s',
+                    'velocity_rmsf': 'm/s',
+                    'velocity_turb_int': '-'}
+        
+        ax.set_ylabel('axial distance 1/d')
+        ax.set_xlabel('x/d')
 
-    def kl_divergence(self, arr, ref_arr):
+        x = np.array([p.radial for lst in self.points for p in lst])
+        y = np.array([p.axial for lst in self.points for p in lst])
+        z = array
+
+        triang = tri.Triangulation(x.flatten(), y.flatten())
+        
+        #cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
+        cf2 = ax.tricontourf(triang, z.flatten(), levels=levels, cmap='viridis', alpha = transparency, vmin=0, vmax=z.max())
+
+        return ax
+
+    def correlate_by_kl_divergence(self, main_point: point, arr, ref_arr,  *args, **kwargs):
+        main_bins = main_point.bin_fraction_arr[None, :]
+
+        all_bins = np.array([p.bin_fraction_arr for lst in self.points for p in lst])
+
+        eps = 1e-12
+        all_bins = np.where(all_bins<eps, eps, all_bins)
+        main_bins = np.where(main_bins<eps, eps, main_bins)
+
+        kl_div = (main_bins * np.log(main_bins/all_bins)).sum(axis=-1)
+
+        return kl_div
+    
+    def correlate_by_mean(self, arr, ref_arr, *args, **kwargs):
         r_arr = ref_arr[None, :]
 
-        entropies = sp.special.rel_entr(r_arr, arr).sum(axis=-1, keepdims=False)
-        return entropies
+        corr = (arr-arr.mean(axis=-1, keepdims=True)) @ (r_arr-r_arr.mean(axis=-1, keepdims=True)).T
+        return corr.flatten()
+    
+    def correlate_by_freq_bins(self, main_point: point, *args, **kwargs):
+        main_bins = main_point.bin_fraction_arr[None, :]
+
+        all_bins = np.array([p.bin_fraction_arr for lst in self.points for p in lst])
+
+        corr = all_bins @ main_bins.T
+        return corr.flatten()
+
+    
