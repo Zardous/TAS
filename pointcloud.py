@@ -11,6 +11,8 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as axes
 import matplotlib.tri as tri
 from collections import defaultdict
+from typing import Callable
+import scipy as sp
 
 class PointCloud:
     def __init__(self) -> None:
@@ -180,20 +182,15 @@ class PointCloud:
             lst.extend(tmp2)
         return 
     
-    def correlate(self, axial_idx: int, radial_idx: int, attribute) -> tuple[np.ndarray, point, np.ndarray]:
+    def correlate(self, axial_idx: int, radial_idx: int, attribute, corr_function: Callable) -> tuple[np.ndarray, point, np.ndarray]:
         main_pt = self.points[axial_idx][radial_idx]
         pts = [p for lst in self.points for p in lst]
         idx = pts.index(main_pt)
-        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (380, 100000)
-        m = arr.mean(axis=1, keepdims=True)
-        s = arr.std(axis=1, keepdims=True)
+        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (310, 100000)
 
-        arr: np.ndarray = (arr-m)/s
-        # arr: np.ndarray = (arr-m)/m
-
-        corr = arr@arr.T / (100000-1) # shape (380, 380)
-        main_corr_value: np.ndarray = corr[idx, idx]
-        return corr[idx], main_pt, main_corr_value
+        corr = corr_function(arr, main_pt.__getattribute__(attribute)) # shape (310, 1)
+        main_corr_value: np.ndarray = corr[idx]
+        return corr, main_pt, main_corr_value
 
     def plot(self, attribute):
         fig = plt.figure()
@@ -342,3 +339,12 @@ class PointCloud:
 
         ax.legend()
         return ax
+
+    def ks(self, arr, ref_arr):
+        return np.zeros((310, 1))
+
+    def kl_divergence(self, arr, ref_arr):
+        r_arr = ref_arr[None, :]
+
+        entropies = sp.special.rel_entr(r_arr, arr).sum(axis=-1, keepdims=False)
+        return entropies
