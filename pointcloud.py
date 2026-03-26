@@ -12,6 +12,7 @@ import matplotlib.axes as axes
 import matplotlib.tri as tri
 from collections import defaultdict
 from typing import Callable
+import scipy as sp
 
 class PointCloud:
     def __init__(self) -> None:
@@ -186,9 +187,9 @@ class PointCloud:
         main_pt = self.points[axial_idx][radial_idx]
         pts = [p for lst in self.points for p in lst]
         idx = pts.index(main_pt)
-        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (380, 100000)
+        arr = np.array([p.__getattribute__(attribute) for lst in self.points for p in lst]) # shape (310, 100000)
 
-        corr = corr_function(arr, main_pt.__getattribute__(attribute)) # shape (380, 1)
+        corr = corr_function(arr, main_pt.__getattribute__(attribute)) # shape (310, 1)
         main_corr_value: np.ndarray = corr[idx]
         return corr, main_pt, main_corr_value
 
@@ -341,4 +342,10 @@ class PointCloud:
         return ax
 
     def ks(self, arr, ref_arr):
-        return np.zeros((380, 1))
+        return np.zeros((310, 1))
+
+    def kl_divergence(self, arr, ref_arr):
+        r_arr = ref_arr[None, :]
+
+        entropies = sp.special.rel_entr(r_arr, arr).sum(axis=-1, keepdims=False)
+        return entropies
