@@ -173,7 +173,7 @@ class PointCloud:
             tmp2 = []
             vels2 = np.array([p.velocity_mean for p in lst])
             check2  = self.__check_for_tail_filter(vels2, 0.05)
-            print(check2)
+            # print(check2)
             for p, c2 in zip(lst, check2):
                 if c2:
                     tmp2.append(p)
