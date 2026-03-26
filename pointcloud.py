@@ -334,7 +334,7 @@ class PointCloud:
         triang = tri.Triangulation(x.flatten(), y.flatten())
         
         highest = z.max()
-        cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
+        #cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
         cf2 = ax.tricontourf(triang, z.flatten(), levels=50, cmap='viridis', alpha = 0.5, vmin=0, vmax=z.max())
 
         ax.legend()

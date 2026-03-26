@@ -12,7 +12,11 @@ fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 cloud.plot_2D('velocity_mean', None, ax1)
 cloud.plot_2D('velocity_turb_int', None, ax2)
 cloud.plot_2D('velocity_skewness', None, ax3)
-cloud.plot_2D('velocity_skewness', None, ax3)
+cloud.plot_2D('velocity_kurtosis', None, ax4)
+
+fig, ((ax1, ax2)) = plt.subplots(1, 2)
+cloud.plot_2D('velocity_mean', None, ax1)
+cloud.plot_2D('velocity_norm', None, ax2)
 
 #cloud.plot_2D('velocity_mean', [0], ax4, True)
 #ax4 = cloud.plot_surface_attr('velocity_mean', ax4)
@@ -41,7 +45,7 @@ def draw(layer, i):
     cloud.points[layer][i].plot_distribution(ax1, 40)
 
     ax3 = cloud.plot_contour_attr('velocity_mean', ax2)
-
+    
     all_radials = []
     all_axials = []
 
@@ -65,7 +69,7 @@ def draw(layer, i):
     ]
 
     # Define color mapping
-    color_map = {"Potential Core": "red", "Jet Half Width": "orange"}
+    color_map = {"Potential Core": "orange", "Jet Half Width": "purple"}
 
     # Plot all lines
     
@@ -82,13 +86,12 @@ def draw(layer, i):
 
         ax3.plot(x_vals, y_vals, color=color_map[category], linestyle="--", linewidth=2)
         
-    nucleus_line = mlines.Line2D([], [], color="red", linestyle="--", label="Potential Core")
-    pole_line = mlines.Line2D([], [], color="orange", linestyle="--", label="Jet Half Width")
+    nucleus_line = mlines.Line2D([], [], color="orange", linestyle="--", label="Potential Core")
+    pole_line = mlines.Line2D([], [], color="purple", linestyle="--", label="Jet Half Width")
 
     ax3.legend(handles=[nucleus_line, pole_line], loc="upper right")
 
-    ax3.set_ylim(-1,9)
-
+    ax3.set_ylim(-0.01,8.01)
 
     ax1.set_title(f"Layer: {layer}, Point: {i}")
 

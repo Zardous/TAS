@@ -91,42 +91,42 @@ class point:
         ax.bar(bin_centers, counts, width=np.diff(bin_edges), color = color_code, alpha = 0.5, edgecolor='black')
         
         ax.text(
-            0.01, 0.95,
+            0.01, 0.99,
             f"Radial Pos: {self.radial:.2f} m",
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=12,
             verticalalignment='top'
         )
 
         ax.text(
-            0.01, 0.90,
+            0.01, 0.94,
             f"Axial Pos: {self.axial:.2f} m",
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=12,
             verticalalignment='top'
         )
 
         ax.text(
-            0.01, 0.85,
-            f"Standard Deviation: {self.velocity_std:.2f}",
+            0.01, 0.89,
+            f"Standard Deviation: {self.velocity_std:.2f} m/s",
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=12,
             verticalalignment='top'
         )
 
         ax.text(
-            0.01, 0.80,
+            0.01, 0.84,
             f"Skewness: {self.velocity_skewness:.2f}",
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=12,
             verticalalignment='top'
         )
 
         ax.text(
-            0.01, 0.75,
+            0.01, 0.79,
             f"Kurtosis: {self.velocity_kurtosis:.2f}",
             transform=ax.transAxes,
-            fontsize=14,
+            fontsize=12,
             verticalalignment='top'
         )
 
@@ -136,7 +136,7 @@ class point:
             f"Mean Velocity:", 
             verticalalignment='bottom',  # starts at the top
             horizontalalignment='left', # aligns to the line
-            fontsize=14,
+            fontsize=12,
             color='black'
         )
 
@@ -146,7 +146,7 @@ class point:
             f"{self.velocity_mean:.2f} m/s", 
             verticalalignment='bottom',  # starts at the top
             horizontalalignment='left', # aligns to the line
-            fontsize=14,
+            fontsize=12,
             color='black'
         )
 
