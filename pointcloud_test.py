@@ -59,8 +59,8 @@ for i in range(n):
 
     max_velocities[i] = max
     #need to remove the shift of the halfwidths at each axial position to get the pole
-    left_halfwidths[i] = (pos[left_up] + pos[left_down])/2 - (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
-    right_halfwidths[i] = (pos[right_up] + pos[right_down])/2 - (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
+    left_halfwidths[i] = (pos[left_up] + pos[left_down])/2 #- (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
+    right_halfwidths[i] = (pos[right_up] + pos[right_down])/2 #- (pos[left_up] + pos[right_up] + pos[left_down] + pos[right_down])/4
     '''
     plt.scatter(pos, vel, label=f"Velocity profile{i}")
     plt.axhline(y=vel[left_up],     color='green', linestyle='--', label="Halfwidth velocity")
