@@ -25,7 +25,16 @@ class point:
         return velocity_arr
 
     def __voltage_to_velocity(self, voltage):
-        velocity = -15.577001774682708+38.2584093*voltage-23.36414635*voltage**2+0.35160582*voltage**3+1.97694339*voltage**4
+    
+        velocity = np.where(
+            voltage > 1.6,
+            -15.577001774682708
+            + 38.2584093 * voltage
+            - 23.36414635 * voltage**2
+            + 0.35160582 * voltage**3
+            + 1.97694339 * voltage**4,
+            0
+        )
         return velocity
 
     def __mean_voltage(self):
@@ -69,16 +78,77 @@ class point:
     def plot_distribution(self, ax, bin_number, color_code='blue'):
         ax.set_title(f"Point at Axial Dist: {self.axial} Radial Dist: {self.radial:0.2f}")
         ax.set_xlabel("Velocity [m/s]")
-        ax.set_xlim(0,10)
+        ax.set_xlim(0,12)
         ax.set_ylim(0,0.3)
         ax.set_ylabel('Occurance Frequency []')
+        ax.axvline(x=self.velocity_mean)
 
-        counts, bin_edges = np.histogram(self.velocity_arr, bins=bin_number, range=(0, 10))
+        counts, bin_edges = np.histogram(self.velocity_arr, bins=bin_number, range=(0, 12))
   
         counts = counts/counts.sum()
 
         bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
         ax.bar(bin_centers, counts, width=np.diff(bin_edges), color = color_code, alpha = 0.5, edgecolor='black')
+        
+        ax.text(
+            0.01, 0.95,
+            f"Radial Pos: {self.radial:.2f} m",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment='top'
+        )
+
+        ax.text(
+            0.01, 0.90,
+            f"Axial Pos: {self.axial:.2f} m",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment='top'
+        )
+
+        ax.text(
+            0.01, 0.85,
+            f"Standard Deviation: {self.velocity_std:.2f}",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment='top'
+        )
+
+        ax.text(
+            0.01, 0.80,
+            f"Skewness: {self.velocity_skewness:.2f}",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment='top'
+        )
+
+        ax.text(
+            0.01, 0.75,
+            f"Kurtosis: {self.velocity_kurtosis:.2f}",
+            transform=ax.transAxes,
+            fontsize=14,
+            verticalalignment='top'
+        )
+
+        ax.text(
+            self.velocity_mean,          # x position = the vertical line
+            ax.get_ylim()[1]*0.5,            # y position = top of y-axis
+            f"Mean Velocity:", 
+            verticalalignment='bottom',  # starts at the top
+            horizontalalignment='left', # aligns to the line
+            fontsize=14,
+            color='black'
+        )
+
+        ax.text(
+            self.velocity_mean,          # x position = the vertical line
+            ax.get_ylim()[1]*0.45,            # y position = top of y-axis
+            f"{self.velocity_mean:.2f} m/s", 
+            verticalalignment='bottom',  # starts at the top
+            horizontalalignment='left', # aligns to the line
+            fontsize=14,
+            color='black'
+        )
 
         return ax
 
