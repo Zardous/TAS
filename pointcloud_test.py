@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 
 pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
-
+'''
 for i in range(len(pointcloud_testdata.points)):
-    print(pointcloud_testdata.points[i][0].axial)
+    print(pointcloud_testdata.points[i][0].axial) '''
 #pointcloud_testdata.shift_velocities()
 iteration_num = 0
 n = len(pointcloud_testdata.points)
@@ -124,10 +124,10 @@ x_clean, y_leftcore_clean, y_rightcore_clean = axial_dist[valid_idx], left_core[
 
 m_left, c_left = np.polyfit(x_clean, y_leftcore_clean, 1)
 m_right, c_right = np.polyfit(x_clean, y_rightcore_clean, 1)
-
+'''
 print(f'Left core fit: y = {m_left:.4f}x + {c_left:.4f}')
 print(f'Right core fit: y = {m_right:.4f}x + {c_right:.4f}')
-
+'''
 x_inter_left = -c_left / m_left
 x_inter_right = -c_right / m_right
 
@@ -189,10 +189,10 @@ valid_idx_half = ~np.isnan(left_halfwidths) & ~np.isnan(right_halfwidths)
 x_clean, y_haleft_clean, y_haright_clean = axial_dist[valid_idx_half], left_halfwidths[valid_idx_half], right_halfwidths[valid_idx_half]
 m_haleft, c_haleft = np.polyfit(x_clean, y_haleft_clean, 1)
 m_haright, c_haright = np.polyfit(x_clean, y_haright_clean, 1)
-
+'''
 print(f'Left halfwidth fit: y = {m_haleft:.4f}x + {c_haleft:.4f}')
 print(f'Right halfwidth fit: y = {m_haright:.4f}x + {c_haright:.4f}')
-
+'''
 
 x_hal_intersect = (c_haright - c_haleft) / (m_haleft - m_haright)
 
