@@ -71,13 +71,13 @@ def draw(layer, i):
     
     for a, b, category in lines:
         x_vals = np.array(ax3.get_xlim())
-        if category in lines == "Potential Core":
-            if a in lines <= 0:
-                x_vals = [x for x in x_vals if x <=0.5]
-            else:
-                x_vals = [x for x in x_vals if x >=-0.5]
-        else:
-            x_vals = x_vals
+        #if lines[category] == "Potential Core":
+        #    if lines[a] <= 0:
+        #        x_vals = [x for x in x_vals if x <=0.5]
+        #    else:
+        #        x_vals = [x for x in x_vals if x >=-0.5]
+        #else:
+        #    x_vals = x_vals
         y_vals = (a * x_vals + b) / 12
 
         ax3.plot(x_vals, y_vals, color=color_map[category], linestyle="--", linewidth=2)
