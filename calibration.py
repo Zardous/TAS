@@ -6,6 +6,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
 
+
 ptcld = PointCloud()
 ptcld.read_cal_data()
 
@@ -128,17 +129,36 @@ poly = model(voltage, velocity)
 #voltage = voltage.reshape(-1, 1)
 #voltage_poly = PolynomialFeatures.transform(voltage)
 degree = PolynomialFeatures(degree=4)
-test = np.linspace(0, 2.5, 50)
+test = np.linspace(0,2.5,50)
 voltage_5D = degree.fit_transform(test.reshape(-1,1)) 
 v_pred = poly.predict(voltage_5D)
 print(poly.coef_)
 print(poly.intercept_)
-print(r2_score(velocity,poly))
+#print(r2_score(velocity, v_pred))
 
-plt.scatter(voltage, velocity)      
-plt.plot(test, v_pred, color = "red")
-plt.title("Calibration Curve")
-plt.xlabel("Hot Vire Voltage [V]")
+def Kings(HW):
+    A=2.4746
+    B=1.1525
+    n=0.4194
+    velo = np.maximum(0, HW**2 - A) / B
+    return velo**(1/n)
+
+v_king = Kings(test)
+
+plt.subplots(2.,1,1)
+plt.scatter(voltage, velocity, color = "green")      
+plt.plot(test, v_pred, color = "red", label = "Polynomial Fit")
+plt.title("Polynomial Fit")
+plt.xlabel("Hot Wire Voltage [V]")
+plt.ylabel("Velocity [m/s]")
+plt.xlim(left=1.5)
+plt.ylim(bottom=0, top=13)
+
+plt.subplots(2,1,2)
+plt.scatter(voltage, velocity, color = "green")   
+plt.plot(test, v_king, color = "purple", label = "King's Law")
+plt.title("King's Law Fit")
+plt.xlabel("Hot Wire Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(left=1.5)
 plt.ylim(bottom=0, top=13)
