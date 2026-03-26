@@ -126,7 +126,7 @@ class PointCloud:
         indice_over_half = np.where(vel/max<0.55)
         indice_under_half = np.where(vel/max>0.45)
         indice_half = np.intersect1d(indice_under_half, indice_over_half)
-        print(f'Half width at: {pos[indice_half]}')
+        #print(f'Half width at: {pos[indice_half]}')
         return indice_half, right_up, left_up, right_down, left_down, right_pos, left_pos
 
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
@@ -173,7 +173,7 @@ class PointCloud:
             tmp2 = []
             vels2 = np.array([p.velocity_mean for p in lst])
             check2  = self.__check_for_tail_filter(vels2, 0.05)
-            print(check2)
+            # print(check2)
             for p, c2 in zip(lst, check2):
                 if c2:
                     tmp2.append(p)
