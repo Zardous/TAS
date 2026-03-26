@@ -4,6 +4,8 @@ from pointcloud import PointCloud
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 from scipy.optimize import curve_fit
+from sklearn.metrics import r2_score
+
 
 ptcld = PointCloud()
 ptcld.read_cal_data()
@@ -70,7 +72,9 @@ voltages_test = np.linspace(0, 0.6, 100)
 #velocities for calibration
 velo_cal1 = p(VALYDINE_voltage_calibration1)
 veloc_cal2 = p(VALYDINE_voltage_calibration2)
-
+val = VALYDINE_voltage_calibration1 + VALYDINE_voltage_calibration2
+v_cal = p(val)
+HW = np.append(HW_voltage_calibration1, HW_voltage_calibration2)
 
 #King's Law
 def kings_law(E, A, B, n):
@@ -79,7 +83,7 @@ def kings_law(E, A, B, n):
 
 #making the fit
 initial_guess = [0.5, 0.5, 0.45] 
-popt, pcov = curve_fit(kings_law, HW_voltage_calibration1, velo_cal1, p0=initial_guess)
+popt, pcov = curve_fit(kings_law, HW, v_cal, p0=initial_guess)
 
 #Best fitting coefficients
 A_best, B_best, n_best = popt
@@ -104,11 +108,11 @@ def v_to_u_func(E_array, A, B, n):
 
     return velo**(1/n)
 
-velo_test = v_to_u_func(HW_voltage_calibration1, A_best, B_best, n_best)
+velo_test = v_to_u_func(HW, A_best, B_best, n_best)
 
 #plot velocity vs voltage, scatter is with velo from polymial(valydine) and the curve is with velo from king's
-plt.scatter(HW_voltage_calibration1, velo_test, label='data')
-plt.plot(HW_voltage_calibration1, velo_cal1, label='king function')
-
+plt.scatter(HW, velo_test, label='data')
+plt.plot(HW, v_cal, label='king function')
 
 plt.show()
+print(r2_score(v_cal, velo_test))
