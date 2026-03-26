@@ -101,6 +101,7 @@ for j in range(len(pointcloud_testdata.points)):
 plt.title("Mean Velocity")
 plt.show()
 '''
+
 for j in range(len(left_core)):
     plt.scatter(axial_dist[j], left_core[j])
     plt.scatter(axial_dist[j], right_core[j])
@@ -137,7 +138,7 @@ x_extrapolate = np.linspace(0, x_intersect * 1.2, 100)
 
 y_left_line = m_left * x_extrapolate + c_left
 y_right_line = m_right * x_extrapolate + c_right
-
+'''
 plt.figure(figsize=(8, 5))
 plt.scatter(axial_dist, left_core)
 plt.scatter(axial_dist, right_core)
@@ -152,7 +153,7 @@ plt.xlabel("Axial Distance")
 plt.ylabel("Potential Core Radius")
 plt.legend()
 plt.show()
-
+'''
 #vertical version of the graph
 
 plt.figure(figsize=(5, 8)) 
@@ -207,7 +208,7 @@ x_poleposition = np.linspace(x_intercept_right, x_intercept_left, 101)
 y_haleft_line = m_haleft * x_extrapolate_half + c_haleft
 
 y_haright_line = m_haright * x_extrapolate_half + c_haright
-
+'''
 plt.figure(figsize=(10, 6))
 plt.scatter(axial_dist, left_halfwidths)
 plt.scatter(axial_dist, right_halfwidths)
@@ -248,7 +249,7 @@ plt.ylabel("Halfwidth")
 plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
 plt.legend(loc='upper left', fontsize='small')
 plt.show()
-
+'''
 plt.figure(figsize=(6, 10)) # Taller figure size
 
 # Swap x and y in scatters
