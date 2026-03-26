@@ -363,9 +363,19 @@ class PointCloud:
         z = array
 
         triang = tri.Triangulation(x.flatten(), y.flatten())
-        
+
+        # Couldnt get this to improve the mesh
+        # refiner = tri.UniformTriRefiner(triang)
+        # triang_refined, z_refined = refiner.refine_field(z.flatten(), triinterpolator=tri.CubicTriInterpolator(triang, z.flatten()), subdiv=2)
+
+        # Contours:
         #cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
+
+        # Basic colour fill:
         cf2 = ax.tricontourf(triang, z.flatten(), levels=levels, cmap='viridis', alpha = transparency, vmin=0, vmax=z.max())
+
+        # Fancy interpolated fill:
+        # cf2 = ax.tricontourf(triang_refined, z_refined, levels=500, cmap='viridis', alpha=transparency, vmin=0, vmax=z.max())
 
         return ax
 
@@ -395,5 +405,25 @@ class PointCloud:
 
         corr = all_bins @ main_bins.T
         return corr.flatten()
+
+    def plot_2Dgraph_from_array(self, array, ax):
+        ax.plot(array)
+        return ax
+
+    def pair_correlation(self, point1: point, point2: point, corr_function: Callable):
+        v1 = point1.velocity_arr
+        v2 = point2.velocity_arr
+
+        corr = corr_function(v1=v1, v2=v2)
+        print(corr.shape)
+        return corr
+    
+    def correlate_pair_by_convolution(self, v1, v2, *args, **kwargs):
+        v1m = v1 - v1.mean()
+        v2m = v2 - v2.mean()
+        v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
+        r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
+        counts = np.arange(v1m.size, 0, -1)
+        return r/(counts * v1m.var())
 
     

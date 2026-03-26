@@ -3,6 +3,8 @@ import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.axes as axes
+from scipy.signal.windows import kaiser
+from scipy.fft import fft, fftfreq
 
 class point:
     def __init__(self, radial_pos, axial_pos, voltage_data):
@@ -157,4 +159,19 @@ class point:
         )
 
         return ax
+
+    def spectral_analysis(self):
+        # Number of sample points
+        N = self.velocity_arr.size
+        
+        # sample spacing
+        T = 1.0
+
+        window = kaiser(N, beta=14)
+        ywf = fft(self.velocity_arr*window)
+        xf = fftfreq(N, T)[:N//2]
+        plt.semilogy(xf[1:N//2], 2.0/N * np.abs(ywf[1:N//2]), '-r')
+        plt.grid()
+        plt.show()
+
 
