@@ -178,7 +178,6 @@ class PointCloud:
 
             lst.clear()
             lst.extend(tmp2)
-            
         return 
     
     def correlate(self, axial_idx: int, radial_idx: int, attribute) -> tuple[np.ndarray, point, np.ndarray]:
@@ -328,7 +327,7 @@ class PointCloud:
                     'velocity_turb_int': '-'}
         
         ax.set_title(attribute)
-        ax.set_ylabel('axial distance')
+        ax.set_ylabel('axial distance 1/d')
         ax.set_xlabel('x/d')
 
         x = np.array([p.radial for lst in self.points for p in lst])
@@ -338,8 +337,8 @@ class PointCloud:
         triang = tri.Triangulation(x.flatten(), y.flatten())
         
         highest = z.max()
-        cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF")
-        cf2 = ax.tricontourf(triang, z.flatten(), levels=50, cmap='viridis', vmin=0, vmax=z.max())
+        cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
+        cf2 = ax.tricontourf(triang, z.flatten(), levels=50, cmap='viridis', alpha = 0.5, vmin=0, vmax=z.max())
 
         ax.legend()
         return ax
