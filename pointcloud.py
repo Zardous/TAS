@@ -268,7 +268,7 @@ class PointCloud:
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
-                    _,_,_,_,_,x_r,x_l = self.find_halfwidth(y_ss,x_ss)
+                    _,_,_,_,_,x_r,x_l,_ = self.find_halfwidth(y_ss,x_ss)
                     x = np.zeros_like(x_ss)
                     for j in range(len(x_ss)):
                         if x_ss[j] <= 0: 

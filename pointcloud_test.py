@@ -28,7 +28,7 @@ for i in range(n):
     pos = np.array([p.radial for p in lst])  
 
     #print(f'Axial distance {i}:')
-    halfwidth_index, right_up, left_up, right_down, left_down, _, _ = pointcloud_testdata.find_halfwidth(vel, pos)
+    halfwidth_index, right_up, left_up, right_down, left_down, _, _, _ = pointcloud_testdata.find_halfwidth(vel, pos)
     #print(halfwidth_index)
     
     #print(f'Positions: Left down: {pos[left_down]}, Left up: {pos[left_up]}, Right up: {pos[right_up]}, Right down: {pos[right_down]}')
