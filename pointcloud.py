@@ -127,7 +127,8 @@ class PointCloud:
         indice_under_half = np.where(vel/max>0.45)
         indice_half = np.intersect1d(indice_under_half, indice_over_half)
         #print(f'Half width at: {pos[indice_half]}')
-        return indice_half, right_up, left_up, right_down, left_down, right_pos, left_pos
+        r_half = (right_pos + left_pos)/2
+        return indice_half, right_up, left_up, right_down, left_down, right_pos, left_pos, r_half
 
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
         max = np.max(vel)
@@ -157,6 +158,40 @@ class PointCloud:
                 p.radial -= mid
         return 
     
+    def flux_integrals(self, vel: np.ndarray, pos: np.ndarray):
+        pi = np.pi
+        rho = 1.225
+        _, _, _, _, _, _, _, r_half = self.find_halfwidth(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
+        self._max_val = np.max(vel)
+        U0 = self._max_val
+        sel_sim_mvp = vel/U0
+
+        xi = pos / r_half
+        f = sel_sim_mvp
+
+        # Sort by ξ so trapz integrates correctly
+        sort_idx = np.argsort(xi)
+        xi_s = xi[sort_idx]
+        f_s  = f[sort_idx]
+
+        # ∫₀^∞ ξ f̃(ξ)ⁿ dξ  for n = 1, 2, 3
+        I1 = np.trapz(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
+        I2 = np.trapz(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
+        I3 = np.trapz(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
+
+        # --- Flux quantities ---
+        # Mass flux:          ṁ  = 2πρ · r½ · (r½ U₀) · I1
+        mass_flux     = 2 * pi * rho * r_half * (r_half * U0) * I1
+
+        # Momentum flux:      M  = 2πρ · (r½ U₀)²    · I2
+        momentum_flux = 2 * pi * rho * (r_half * U0)**2 * I2
+
+        # Kinetic energy flux: Ė = (πρ / r½) · (r½ U₀)³ · I3
+        energy_flux   = (pi * rho / r_half) * (r_half * U0)**3 * I3
+
+        return mass_flux, momentum_flux, energy_flux
+
+
     def __filter(self):
         for lst in self.points:
             tmp = []
