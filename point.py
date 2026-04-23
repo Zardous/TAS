@@ -160,7 +160,7 @@ class point:
 
         return ax
 
-    def spectral_analysis(self):
+    def spectral_analysis(self, plot=True):
         # Number of sample points
         N = self.velocity_arr.size
         
@@ -168,10 +168,24 @@ class point:
         T = 1.0
 
         window = kaiser(N, beta=14)
-        ywf = fft(self.velocity_arr*window)
+        ywf = fft(self.velocity_arr*window)[:N//2]
         xf = fftfreq(N, T)[:N//2]
-        plt.semilogy(xf[1:N//2], 2.0/N * np.abs(ywf[1:N//2]), '-r')
-        plt.grid()
-        plt.show()
+
+        scale = 2.0 / window.sum()
+        ampls = scale * np.abs(ywf)
+        ampls[0] /= 2
+
+        if plot:
+            plt.plot(xf[1:], ampls[1:])
+            plt.yscale('log')
+
+            plt.grid()
+            plt.show()
+
+        return xf, ampls
+    
+    def Kolmogorov(self,):
+        freqs, ampls = self.spectral_analysis(plot=False)
+        k = ...
 
 
