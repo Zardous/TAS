@@ -6,7 +6,7 @@ import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 from mpl_toolkits.mplot3d import Axes3D
 
-if True: # Run cross correlation. If false it runs auto correlation (code below)
+if False: # Run cross correlation. If false it runs auto correlation (code below)
     cloud = PointCloud()
     cloud.read_test_data()
 
@@ -39,7 +39,7 @@ else:
     cloud = PointCloud()
     cloud.read_test_data()
 
-    p = cloud.points[4][25]
+    p = cloud.points[2][15]
     p.spectral_analysis()
 
     # fig, ax1 = plt.subplots(1, 1)
