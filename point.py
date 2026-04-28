@@ -20,7 +20,7 @@ class point:
         self.velocity_turb_int = self.__turbulence_intensity()
         self.velocity_skewness = self.__skewness()
         self.velocity_kurtosis = self.__kurtosis()
-        self.bin_fraction_arr, self.bin_value_arr = self.__distribution(bin_number=40)
+        self.bin_fraction_arr, self.bin_value_arr = self.__distribution(bin_number=50)
 
     def __voltage_arr_to_velocity_arr(self):
         velocity_arr = np.zeros(len(self.voltage_arr))
