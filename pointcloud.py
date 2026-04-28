@@ -114,7 +114,7 @@ class PointCloud:
         mask = np.zeros_like(array, dtype=bool)
         mask[l:(r+1)] = True
 
-        return mask!=None        
+        #return mask!=None        
         return mask
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
@@ -155,7 +155,6 @@ class PointCloud:
         right_up_max = over_half[-1]
         left_up_max = over_half[0]
         midpoint = (pos[right_up_max] + pos[left_up_max])/2
-
         return right_up_max, left_up_max, midpoint, max
     
     def find_core(self, vel: np.ndarray, pos: np.ndarray):
@@ -180,7 +179,16 @@ class PointCloud:
     def flux_integrals(self, vel: np.ndarray, pos: np.ndarray):
         pi = np.pi
         rho = 1.225
-        _, _, _, _, _, _, _, r_half = self.find_halfwidth(np.array([p.velocity_mean for lst in self.points for p in lst]), np.array([p.radial for lst in self.points for p in lst]))
+        _, _, _, _, _, _, _, r_half = self.find_halfwidth(vel, pos)
+        right_up_max, left_up_max, mid,_ = self.find_mid(vel, pos)
+        
+
+
+        print(f"right_up_max: {right_up_max}")
+        print(f"left_up_max: {left_up_max}")
+        print(f"mid: {mid}")
+        print(f"np.argmax(vel): {np.argmax(vel)}")
+        print(f"new mid: {np.argmin(abs(pos))}")
         self._max_val = np.max(vel)
         U0 = self._max_val
         sel_sim_mvp = vel/U0
@@ -188,16 +196,33 @@ class PointCloud:
         xi = pos / r_half
         f = sel_sim_mvp
 
-        # Sort by ξ so trapz integrates correctly
-        sort_idx = np.argsort(xi)
-        xi_s = xi[sort_idx]
-        f_s  = f[sort_idx]
+        # 1. Find indices for the bounds
+        idx = int((left_up_max + right_up_max)/2)
+        xi_s = xi[np.argmin(abs(pos)):]
+        f_s = f[np.argmin(abs(pos)):]
+
+        print(f"new idx: {idx}")
+        
 
         # ∫₀^∞ ξ f̃(ξ)ⁿ dξ  for n = 1, 2, 3
         I1 = np.trapezoid(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
         I2 = np.trapezoid(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
         I3 = np.trapezoid(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
 
+        xi_s2 = xi[:np.argmin(abs(pos))]
+        f_s2 = f[:np.argmin(abs(pos))]
+
+        I12 = -np.trapezoid(xi_s2 * f_s2,    xi_s2)   # n=1  (mass flux integral)
+        I22 = -np.trapezoid(xi_s2 * f_s2**2, xi_s2)   # n=2  (momentum flux integral)
+        I32 = -np.trapezoid(xi_s2 * f_s2**3, xi_s2)   # n=3  (kinetic energy flux integral)
+
+        I1 = (I1 + I12)/2
+        I2 = (I2 + I22)/2
+        I3 = (I3 + I32)/2
+
+        #print(I1)
+        #print(I2)
+        #print(I3)
         # --- Flux quantities ---
         # Mass flux:          ṁ  = 2πρ · r½ · (r½ U₀) · I1
         mass_flux     = 2 * pi * rho * r_half * (r_half * U0) * I1
@@ -208,7 +233,7 @@ class PointCloud:
         # Kinetic energy flux: Ė = (πρ / r½) · (r½ U₀)³ · I3
         energy_flux   = (pi * rho / r_half) * (r_half * U0)**3 * I3
 
-        return mass_flux, momentum_flux, energy_flux
+        return mass_flux, momentum_flux, energy_flux, xi_s, f_s
     
 
 

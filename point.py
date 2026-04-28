@@ -180,14 +180,15 @@ class point:
 
         return freq, ampls
     
-    def Kolmogorov(self,):
+    def Kolmogorov(self, ax=None):
         segment_length = 2000
         freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
 
         k  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
         Ek = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)^2 / (rad/m) ]
 
-        fig, ax = plt.subplots()
+        if ax==None:
+            fig, ax = plt.subplots()
         ax.plot(k[1:], Ek[1:], label='Measured spectrum')
 
         k_ref = np.logspace(np.log10(k[k.size//70]), np.log10(k[k.size//5]), 2)
@@ -199,6 +200,9 @@ class point:
 
         ax.set_xscale('log')
         ax.set_yscale('log')
+
+        ax.set_ylim(10**-11, 10**-1)
+        ax.set_xlim(10**1, 10**7)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
         ax.set_ylabel(r'$E(k)$ [m$^3$/s$^2$]')
