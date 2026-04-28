@@ -314,7 +314,7 @@ def run_pole_optimisation(pc: PointCloud,
 
     # ── 2. define fan of lines across the full jet width ─────────────────────
     # fan from leftmost to rightmost x at the last (furthest) axial station
-    x_sweep = np.linspace(x_positions[-1].min(),
+    x_sweep = np.linspace(x_positions[-1].min(), #NEED TO CHECK THIS, MAYBE SHOULD BE WITHIN EDGES OF THE CONE?
                           x_positions[-1].max(),
                           9)
 
@@ -398,7 +398,7 @@ x_positions     = x_positions[SKIP:]
 velocities      = velocities[SKIP:]
 centerline_vel  = centerline_vel[SKIP:]
 
-z_plot = np.linspace(z_opt*1.2, axial_distances[-1]*1.2, 100)
+z_plot = np.linspace(z_opt*1.2, axial_distances[-1]*1.2, 300)
 
 
 plt.figure()
