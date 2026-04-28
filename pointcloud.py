@@ -165,7 +165,7 @@ class PointCloud:
     def flux_integrals(self, vel: np.ndarray, pos: np.ndarray):
         pi = np.pi
         rho = 1.225
-        _, _, _, _, _, _, _, r_half = self.find_halfwidth(np.array([p.velocity_mean for p in lst]), np.array([p.radial for p in lst]))
+        _, _, _, _, _, _, _, r_half = self.find_halfwidth(np.array([p.velocity_mean for lst in self.points for p in lst]), np.array([p.radial for lst in self.points for p in lst]))
         self._max_val = np.max(vel)
         U0 = self._max_val
         sel_sim_mvp = vel/U0
@@ -179,9 +179,9 @@ class PointCloud:
         f_s  = f[sort_idx]
 
         # ∫₀^∞ ξ f̃(ξ)ⁿ dξ  for n = 1, 2, 3
-        I1 = np.trapz(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
-        I2 = np.trapz(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
-        I3 = np.trapz(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
+        I1 = np.trapezoid(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
+        I2 = np.trapezoid(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
+        I3 = np.trapezoid(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
 
         # --- Flux quantities ---
         # Mass flux:          ṁ  = 2πρ · r½ · (r½ U₀) · I1
