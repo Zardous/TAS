@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 
 pointcloud_testdata = PointCloud()
 pointcloud_testdata.read_test_data()
+
 '''
 for i in range(len(pointcloud_testdata.points)):
     print(pointcloud_testdata.points[i][0].axial) '''
