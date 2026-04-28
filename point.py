@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as axes
 from scipy.signal.windows import kaiser
 from scipy.fft import fft, fftfreq
+from scipy.signal import welch, periodogram
 
 class point:
     def __init__(self, radial_pos, axial_pos, voltage_data):
@@ -161,31 +162,47 @@ class point:
         return ax
 
     def spectral_analysis(self, plot=True):
-        # Number of sample points
-        N = self.velocity_arr.size
         
-        # sample spacing
-        T = 1.0
+        f = 1e5/5
 
-        window = kaiser(N, beta=14)
-        ywf = fft(self.velocity_arr*window)[:N//2]
-        xf = fftfreq(N, T)[:N//2]
+        freq, Pxx = welch(self.velocity_arr, fs=f, window=('kaiser', 14),
+                   nperseg=2000, scaling='spectrum')
 
-        scale = 2.0 / window.sum()
-        ampls = scale * np.abs(ywf)
-        ampls[0] /= 2
+        ampls = np.sqrt(Pxx)
 
         if plot:
-            plt.plot(xf[1:], ampls[1:])
+            plt.xlabel(f'Frequency [Hz]')
+            plt.ylabel(f'Amplitude [m/s]')
+            plt.plot(freq[1:], ampls[1:])
             plt.yscale('log')
 
             plt.grid()
             plt.show()
 
-        return xf, ampls
+        return freq, ampls
     
     def Kolmogorov(self,):
-        freqs, ampls = self.spectral_analysis(plot=False)
-        k = ...
+        segment_length = 2000
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
+        print(f'f: 1060Hz, k: {2 * np.pi * 1060 / self.velocity_mean:.0f}')
+        print(f'f: 6500Hz, k: {2 * np.pi * 6500 / self.velocity_mean:.0f}')
+        k  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
+        Ek = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)^2 / (rad/m) ]
+
+        fig, ax = plt.subplots()
+        ax.plot(k[1:], Ek[1:], label='Measured spectrum')
+
+        k_ref = np.logspace(np.log10(k[k.size//70]), np.log10(k[k.size//5]), 2)
+        const = Ek[k.size//50] / k_ref[0]**(-5/3)
+        ax.plot(k_ref, const*(k_ref)**(-5/3), 'r--', label=r'$k^{-5/3}$')
+
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+
+        ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
+        ax.set_ylabel(r'$E(k)$ [m$^3$/s$^2$]')
+
+        ax.legend()
+        plt.show()
 
 
