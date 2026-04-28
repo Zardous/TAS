@@ -39,19 +39,23 @@ else:
     cloud = PointCloud()
     cloud.read_test_data()
 
-    p = cloud.points[2][15]
-    p.spectral_analysis()
+    # p = cloud.points[1][40]
+    # p.spectral_analysis()
+    # Power spectral density
 
-    # fig, ax1 = plt.subplots(1, 1)
+    fig, ax1 = plt.subplots(1, 1)
 
-    # point1 = cloud.points[2][20]
-    # point2 = cloud.points[2][20]
-    # corr_kl = cloud.pair_correlation(point1, point2, cloud.correlate_pair_by_convolution)
-    # ax1 = cloud.plot_2Dgraph_from_array(corr_kl, ax1)
+    point1 = cloud.points[1][40]
+    point2 = cloud.points[1][40]
+    corr_kl = cloud.pair_correlation(point1, point2, cloud.correlate_pair_by_convolution)
+    ms = np.linspace(0, 5_000, corr_kl.size)
+    ax1.plot(ms, corr_kl)
 
+    ax1.set_xlabel('Lag [ms]')
+    ax1.set_ylabel('Autocorrelation [-]')
 
-    # fig.tight_layout()
-    # plt.show()
+    fig.tight_layout()
+    plt.show()
 
 
 

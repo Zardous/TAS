@@ -18,7 +18,7 @@ class PointCloud:
     def __init__(self) -> None:
         pass
 
-    def read_test_data(self):
+    def read_test_data(self, filter_and_shift=True):
         self.points: list[list[point]] = []
 
         for folder_name in os.listdir(os.path.join('data')):
@@ -58,8 +58,9 @@ class PointCloud:
         self.points.insert(1, zerofive)
 
         print(f'Done')
-        self.__shift_velocities()
-        self.__filter()
+        if filter_and_shift:
+            self.__shift_velocities()
+            self.__filter()
 
     def read_cal_data(self):
         self.points = []
@@ -107,11 +108,14 @@ class PointCloud:
         left = np.where((array / max_val < p_rec_min) & (np.arange(len(array)) < max_idx))[0]
         right = np.where((array / max_val < p_rec_min) & (np.arange(len(array)) > max_idx))[0]
 
-        l = left[-1] if len(left) > 0 else 0
-        r = right[0] if len(right) > 0 else len(array) - 1
+        l = left[0] if len(left) > 0 else 0
+        r = right[-1] if len(right) > 0 else len(array) - 1
 
         mask = np.zeros_like(array, dtype=bool)
         mask[l:(r+1)] = True
+
+        return mask!=None
+
         return mask
     
     def find_halfwidth(self, vel: np.ndarray, pos: np.ndarray):
@@ -191,7 +195,6 @@ class PointCloud:
 
         return mass_flux, momentum_flux, energy_flux
 
-
     def __filter(self):
         for lst in self.points:
             tmp = []
@@ -260,8 +263,8 @@ class PointCloud:
         
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(attribute)
-        ax.set_ylabel(suffixes[attribute])
-        ax.set_xlabel('x/d')
+        ax.set_ylabel('['+suffixes[attribute]+']')
+        ax.set_xlabel('Radial distance [-]')
 
         if idx==None:
             for i in range(7):
@@ -292,7 +295,7 @@ class PointCloud:
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
-                    _,_,_,_,_,x_r,x_l = self.find_halfwidth(y_ss,x_ss)
+                    _,_,_,_,_,x_r,x_l,_ = self.find_halfwidth(y_ss,x_ss)
                     x = np.zeros_like(x_ss)
                     for j in range(len(x_ss)):
                         if x_ss[j] <= 0: 
@@ -450,7 +453,6 @@ class PointCloud:
         v2 = point2.velocity_arr
 
         corr = corr_function(v1=v1, v2=v2)
-        print(corr.shape)
         return corr
     
     def correlate_pair_by_convolution(self, v1, v2, *args, **kwargs):
@@ -458,7 +460,6 @@ class PointCloud:
         v2m = v2 - v2.mean()
         v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
         r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
-        counts = np.arange(v1m.size, 0, -1)
-        return r/(counts * v1m.var())
+        return r/(np.cumsum(v1m**2)[::-1])
 
     
