@@ -6,8 +6,8 @@ cloud.read_test_data()
 
 p = cloud.points[1][20]
 # p.spectral_analysis()
-p.Kolmogorov()
+# p.Kolmogorov()
 # p.PSD()
-# p.energy_spectrum()
+p.energy_spectrum()
 
 

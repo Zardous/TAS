@@ -221,7 +221,7 @@ class point:
         ax.legend()
         plt.show()
 
-    def energy_spectrum(self):
+    def energy_spectrum(self, plot=True):
         segment_length = 2000
         fmax = 7_800
         freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
@@ -230,17 +230,19 @@ class point:
 
         E = Ef*freq
 
-        fig, ax = plt.subplots()
-        ax.plot(freq, E, label='Measured spectrum')
+        if plot:
+            fig, ax = plt.subplots()
+            ax.plot(freq, E, label='Measured spectrum')
 
-        ax.set_xscale('log')
-        ax.set_yscale('log')
+            ax.set_xscale('log')
+            ax.set_yscale('log')
 
-        ax.set_xlabel(r'Frequency [Hz]')
-        ax.set_ylabel(r'$E$ [m$^2$/s$^2$]')
+            ax.set_xlabel(r'Frequency [Hz]')
+            ax.set_ylabel(r'$E$ [m$^2$/s$^2$]')
 
-        ax.legend()
-        plt.show()
+            ax.legend()
+            plt.show()
+        return freq, E
 
     def PSD(self,):
         segment_length = 2000
