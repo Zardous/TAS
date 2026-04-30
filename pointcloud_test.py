@@ -206,6 +206,9 @@ x_extrapolate_half = np.linspace(x_hal_intersect*1.2, 100, 101)
 
 x_poleposition = np.linspace(x_intercept_right, x_intercept_left, 101)
 
+print(f"Left line: y = {m_haleft}*x + {c_haleft}")
+print(f"Right line: y = {m_haright}*x + {c_haright}")
+
 y_haleft_line = m_haleft * x_extrapolate_half + c_haleft
 
 y_haright_line = m_haright * x_extrapolate_half + c_haright

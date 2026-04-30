@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.optimize import minimize
 from pointcloud import PointCloud
-from pointcloud import find_edge
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # STEP 1 — EXTRACT ARRAYS FROM POINTCLOUD
@@ -314,9 +314,10 @@ def run_pole_optimisation(pc: PointCloud,
 
     # ── 2. define fan of lines across the full jet width ─────────────────────
     # fan from leftmost to rightmost x at the last (furthest) axial station
-    x_sweep = np.linspace(x_positions[-1].min(), #NEED TO CHECK THIS, MAYBE SHOULD BE WITHIN EDGES OF THE CONE ?
-                          x_positions[-1].max(),
-                          9)
+    x_sweep = np.linspace(x_positions[-1].min()*0.9, #NEED TO CHECK THIS, MAYBE SHOULD BE WITHIN EDGES OF THE CONE ?
+                          x_positions[-1].max()*0.9,
+                          26)
+    
 
     slopes = slopes_from_x_at_z(x_sweep,
                                  z_ref=axial_distances[-1],
@@ -366,7 +367,7 @@ def run_pole_optimisation(pc: PointCloud,
         for i, m in enumerate(slopes_opt)
     ]
 
-    return x_opt, z_opt, line_params
+    return x_opt, z_opt, line_params_opt
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -412,4 +413,67 @@ plt.scatter(x_opt, z_opt, color='red', zorder=5, label=f'Pole ({x_opt:.3f}, {z_o
 plt.xlabel('x/d')
 plt.ylabel('axial distance z/d')
 plt.legend()
+plt.show()
+
+
+# ── sweep over different numbers of lines ────────────────────────────────────
+line_counts = [2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,40]
+
+results = []   # store (n_lines, x_opt, z_opt, final_error) for each run
+
+for n_lines in line_counts:
+
+    axial_distances, x_positions, velocities, centerline_vel = extract_arrays(pc)
+    axial_distances = axial_distances[SKIP:]
+    x_positions     = x_positions[SKIP:]
+    velocities      = velocities[SKIP:]
+    centerline_vel  = centerline_vel[SKIP:]
+
+    x_sweep = np.linspace(x_positions[-1].min() * 0.9,
+                          x_positions[-1].max() * 0.9,
+                          n_lines)
+
+    slopes = slopes_from_x_at_z(x_sweep,
+                                 z_ref=axial_distances[-1],
+                                 x_pole=X_POLE_INIT,
+                                 z_pole=Z_POLE_INIT)
+
+    result = minimize(
+        pole_error,
+        x0=[X_POLE_INIT, Z_POLE_INIT],
+        args=(slopes, axial_distances, x_positions, velocities, centerline_vel),
+        method='Nelder-Mead',
+        options={'xatol': 1e-4, 'fatol': 1e-6, 'maxiter': 2000}
+    )
+
+    x_opt, z_opt = result.x
+    final_error  = result.fun
+
+    results.append((n_lines, x_opt, z_opt, final_error))
+    print(f"n_lines={n_lines:3d} | pole=({x_opt:.4f}, {z_opt:.4f}) | error={final_error:.6f}")
+
+
+# ── unpack results ────────────────────────────────────────────────────────────
+n_arr  = np.array([r[0] for r in results])
+x_arr  = np.array([r[1] for r in results])
+z_arr  = np.array([r[2] for r in results])
+err_arr = np.array([r[3] for r in results])
+
+
+# ── plot ─────────────────────────────────────────────────────────────────────
+fig, axes = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
+
+axes[0].plot(n_arr, x_arr, 'o-', color='steelblue')
+axes[0].axhline(0, color='k', linewidth=0.5, linestyle='--')
+axes[0].set_ylabel('Pole x position')
+axes[0].set_title('Pole position and error vs number of lines')
+
+axes[1].plot(n_arr, z_arr, 'o-', color='darkorange')
+axes[1].set_ylabel('Pole z position')
+
+axes[2].plot(n_arr, err_arr, 'o-', color='firebrick')
+axes[2].set_ylabel('Final error')
+axes[2].set_xlabel('Number of lines')
+
+plt.tight_layout()
 plt.show()
