@@ -180,7 +180,7 @@ class point:
 
         return freq, ampls
     
-    def Kolmogorov(self,):
+    def Kolmogorov(self, ax=None):
         segment_length = 2000
         fmax = 7_800
         freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
@@ -191,8 +191,9 @@ class point:
         print(f'Kmax: {2 * np.pi * fmax / self.velocity_mean:.0f}')
         Ek = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)^2 / (rad/m) ]
 
-        fig, ax = plt.subplots()
-        ax.plot(k[0:], Ek[0:], label='Measured spectrum')
+        if ax==None:
+            fig, ax = plt.subplots()
+        ax.plot(k[1:], Ek[1:], label='Measured spectrum')
 
         k_ref = np.logspace(np.log10(k[k.size//70]), np.log10(k[k.size//5]), 2)
         const = Ek[k.size//70] / k_ref[0]**(-5/3)
@@ -205,6 +206,9 @@ class point:
         ax.set_yscale('log')
 
         ax.vlines(fmax, 0, 100, 'red')
+
+        ax.set_ylim(10**-11, 10**-1)
+        ax.set_xlim(10**1, 10**7)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
         ax.set_ylabel(r'$E(k)$ [m$^3$/s$^2$]')
@@ -231,3 +235,12 @@ class point:
         plt.show()
 
 
+    def PSD(self,):
+        segment_length = 2000
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') 
+
+       
+        plt.loglog(freq, Ef)
+        plt.xlabel('Frequency [Hz]')
+        plt.ylabel('Powe Spectral Density [m^2/s^2Hz]')
+        plt.show()
