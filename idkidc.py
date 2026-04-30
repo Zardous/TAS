@@ -7,23 +7,6 @@ cloud = PointCloud()
 cloud.read_test_data()
 
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
-
-cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
-cloud.plot_2Dgraph_from_attr_name('velocity_turb_int', None, ax2)
-cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax3)
-cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax4)
-
-fig, ((ax1, ax2)) = plt.subplots(1, 2)
-cloud.plot_2Dgraph_from_attr_name('velocity_mean', [0,1], ax1)
-cloud.plot_2Dgraph_from_attr_name('velocity_norm', [0,1], ax2)
-
-#cloud.plot_2D('velocity_mean', [0], ax4, True)
-#ax4 = cloud.plot_surface_attr('velocity_mean', ax4)
-
-#fig.tight_layout()
-fig.show()
-
 #axial_layer = 4
 #for i in range(len(cloud.points[axial_layer])):
 #    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
@@ -31,7 +14,7 @@ fig.show()
 #    fig.savefig(f'figure_[{axial_layer}][{i}].png')
 #    plt.close(fig)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 
 cloud.points[4][3].plot_distribution(ax1, 40)
 
@@ -41,11 +24,22 @@ current_layer = 0
 def draw(layer, i):
     ax1.clear()
     ax2.clear()
+    ax3.clear()
+    ax4.clear()
 
-    cloud.points[layer][i].plot_distribution(ax1, 40)
+    tha_point = cloud.points[layer][i]
+    corr_kl = cloud.pair_correlation(tha_point, tha_point, cloud.correlate_pair_by_convolution)
+    ms = np.linspace(0, 5_000, corr_kl.size)
+    ax1.set_ylim(-1, 1)
+    ax1.plot(ms, corr_kl)
 
-    ax3 = cloud.plot_2Dcontour_from_attr_name('velocity_mean', ax2)
-    
+    ax1.set_xlabel('Lag [ms]')
+    ax1.set_ylabel('Autocorrelation [-]')
+    ax1.set_xlim(0, 20)
+
+    corr_kl, _, _ = cloud.full_cross_correlation(layer, i, cloud.correlate_by_kl_divergence)
+    ax2_5 = cloud.plot_2Dcontour_from_array(corr_kl, ax2, transparency=1)
+
     all_radials = []
     all_axials = []
 
@@ -54,44 +48,25 @@ def draw(layer, i):
             all_radials.append(p.radial)
             all_axials.append(p.axial)
 
-    ax3.scatter(all_radials, all_axials,
+    ax2_5.scatter(all_radials, all_axials,
                 s=20, facecolors="white", edgecolors="black")
     
     main_point = cloud.points[layer][i]
-    ax3.scatter(main_point.radial, main_point.axial, s=50, color="red")
-
-  # List of (a, b, category)
-    lines = [
-        (1/0.0103, 0.3792/0.0103, "Potential Core"),   # potential core
-        (-1/0.0121, 0.3875/0.0121, "Potential Core"),  # potential core
-        (-1/0.0051, -0.4801/0.0051, "Jet Half Width"),    # pole
-        (1/0.0044, -0.5691/0.0044, "Jet Half Width")      # pole
-    ]
-
-    # Define color mapping
-    color_map = {"Potential Core": "orange", "Jet Half Width": "purple"}
-
-    # Plot all lines
-    
-    for a, b, category in lines:
-        x_vals = np.array(ax3.get_xlim())
-        if abs(a) <= 100:
-            if a <= 0:
-                x_vals[0] = -0.12
-            else:
-                x_vals[1] = 0.05
-        else:
-            x_vals = x_vals
-        y_vals = (a * x_vals + b) / 12
-
-        ax3.plot(x_vals, y_vals, color=color_map[category], linestyle="--", linewidth=2)
+    ax2_5.scatter(main_point.radial, main_point.axial, s=50, color="red")
         
-    nucleus_line = mlines.Line2D([], [], color="orange", linestyle="--", label="Potential Core")
-    pole_line = mlines.Line2D([], [], color="purple", linestyle="--", label="Jet Half Width")
+    ax2_5.set_ylim(-0.01,8.01)
 
-    ax3.legend(handles=[nucleus_line, pole_line], loc="upper right")
+    ax3.plot(ms, main_point.velocity_arr)
+    ax3.set_xlabel('Time [ms]')
+    ax3.set_xlim(0, 1000)
 
-    ax3.set_ylim(-0.01,8.01)
+    # freq, ampls = main_point.spectral_analysis(False)
+    # ax4.plot(freq, ampls)
+    # ax4.set_xlabel(f'Frequency [Hz]')
+    # ax4.set_ylabel(f'Amplitude [m/s]')
+    # ax4.set_yscale('log')
+
+    main_point.Kolmogorov(ax4)
 
     ax1.set_title(f"Layer: {layer}, Point: {i}")
 
