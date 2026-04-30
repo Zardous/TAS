@@ -229,3 +229,12 @@ class point:
         plt.show()
 
 
+    def PSD(self,):
+        segment_length = 2000
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') 
+
+       
+        plt.loglog(freq, Ef)
+        plt.xlabel('Frequency [Hz]')
+        plt.ylabel('Powe Spectral Density [m^2/s^2Hz]')
+        plt.show()
