@@ -5,9 +5,9 @@ cloud = PointCloud()
 cloud.read_test_data()
 
 p = cloud.points[1][20]
-p.spectral_analysis()
-p.Kolmogorov()
-p.PSD()
+# p.spectral_analysis()
+# p.Kolmogorov()
+# p.PSD()
 p.energy_spectrum()
 
 

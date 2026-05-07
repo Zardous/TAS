@@ -146,7 +146,7 @@ class PointCloud:
         indice_under_half = np.where(vel/max>0.045)
         indice_half_e = np.intersect1d(indice_under_half, indice_over_half)
         #print(f'Half width at: {pos[indice_half]}')
-        r_edge = (right_pos + left_pos)/2
+        r_edge = (right_pos_e + left_pos_e)/2
         return indice_half_e, right_up_e, left_up_e, right_down_e, left_down_e, right_pos_e, left_pos_e, r_edge
 
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
@@ -302,10 +302,17 @@ class PointCloud:
                     'velocity_turb_int': '-',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-'}
+        titles = {'velocity_mean': 'Mean Velocity',
+                    'velocity_std': 'Standard Deviation',
+                    'velocity_norm': 'Normalized Velocity',
+                    'velocity_rmsf': 'RMS Fluctuations',
+                    'velocity_turb_int': 'Turbulence Intensity',
+                    'velocity_skewness': 'Skewness',
+                    'velocity_kurtosis': 'Kurtosis'}
         
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
-        ax.set_title(attribute)
-        ax.set_ylabel('['+suffixes[attribute]+']')
+        ax.set_title(titles[attribute])
+        ax.set_ylabel(f'[{suffixes[attribute]}]')
         ax.set_xlabel('Radial distance [-]')
 
         if idx==None:
@@ -320,7 +327,9 @@ class PointCloud:
                             x[j] = x_ss[j]/abs(x_l)
                         else:
                             x[j] = x_ss[j]/abs(x_r)
-                    y_norm = np.max(y_ss)
+                    y_max = np.max(y_ss)
+                    y_maxvals = y_ss[y_ss/y_max>0.99]
+                    y_norm = np.average(y_maxvals)
                     y = y_ss/y_norm
                 else:
                     x = np.array([p.radial for p in self.points[i]])

@@ -62,11 +62,13 @@ def draw(layer, i):
     ax3.set_xlabel('Time [ms]')
     ax3.set_xlim(0, 5000)
 
-    freq, ampls = main_point.spectral_analysis(False)
+    freq, ampls = main_point.energy_spectrum(False)
     ax4.plot(freq, ampls)
     ax4.set_xlabel(f'Frequency [Hz]')
-    ax4.set_ylabel(f'Amplitude [m/s]')
+    # ax4.set_ylabel(f'Amplitude [m/s]')
+    ax3.set_ylabel(f'Energy [m²/s²]')
     ax4.set_yscale('log')
+    # ax3.set_ylim(10**-5, 10**0)
 
     # main_point.Kolmogorov(ax4)
 
