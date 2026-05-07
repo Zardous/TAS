@@ -146,7 +146,7 @@ class PointCloud:
         indice_under_half = np.where(vel/max>0.045)
         indice_half_e = np.intersect1d(indice_under_half, indice_over_half)
         #print(f'Half width at: {pos[indice_half]}')
-        r_edge = (right_pos + left_pos)/2
+        r_edge = (right_pos_e + left_pos_e)/2
         return indice_half_e, right_up_e, left_up_e, right_down_e, left_down_e, right_pos_e, left_pos_e, r_edge
 
     def find_mid(self, vel: np.ndarray, pos: np.ndarray):
