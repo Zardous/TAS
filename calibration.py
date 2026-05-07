@@ -145,23 +145,22 @@ def Kings(HW):
 
 v_king = Kings(test)
 
-plt.subplots(2.,1,1)
 plt.scatter(voltage, velocity, color = "green")      
 plt.plot(test, v_pred, color = "red", label = "Polynomial Fit")
 plt.title("Polynomial Fit")
 plt.xlabel("Hot Wire Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(left=1.5)
-plt.ylim(bottom=0, top=13)
+plt.ylim(bottom=0, top=11.5)
+plt.show()
 
-plt.subplots(2,1,2)
 plt.scatter(voltage, velocity, color = "green")   
-plt.plot(test, v_king, color = "purple", label = "King's Law")
+plt.plot(test, v_king, color = "blue", label = "King's Law")
 plt.title("King's Law Fit")
 plt.xlabel("Hot Wire Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(left=1.5)
-plt.ylim(bottom=0, top=13)
+plt.ylim(bottom=0, top=11.5)
 plt.show()
    
 #def poly_func(x, y):

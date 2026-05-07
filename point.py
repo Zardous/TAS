@@ -20,7 +20,7 @@ class point:
         self.velocity_turb_int = self.__turbulence_intensity()
         self.velocity_skewness = self.__skewness()
         self.velocity_kurtosis = self.__kurtosis()
-        self.bin_fraction_arr, self.bin_value_arr = self.__distribution(bin_number=40)
+        self.bin_fraction_arr, self.bin_value_arr = self.__distribution(bin_number=50)
 
     def __voltage_arr_to_velocity_arr(self):
         velocity_arr = np.zeros(len(self.voltage_arr))
@@ -162,18 +162,21 @@ class point:
         return ax
 
     def spectral_analysis(self, plot=True):
-        
         f = 1e5/5
+        fmax = 7_800
 
         freq, Pxx = welch(self.velocity_arr, fs=f, window=('kaiser', 14),
                    nperseg=2000, scaling='spectrum')
+
+        Pxx[freq>fmax] = np.nan
+        freq[freq>fmax] = np.nan
 
         ampls = np.sqrt(Pxx)
 
         if plot:
             plt.xlabel(f'Frequency [Hz]')
             plt.ylabel(f'Amplitude [m/s]')
-            plt.plot(freq[1:], ampls[1:])
+            plt.plot(freq, ampls)
             plt.yscale('log')
 
             plt.grid()
@@ -181,23 +184,36 @@ class point:
 
         return freq, ampls
     
-    def Kolmogorov(self,):
+    def Kolmogorov(self, ax=None):
         segment_length = 2000
+        fmax = 7_800
+        k_max = 2 * np.pi * fmax / self.velocity_mean
         freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
-        print(f'f: 1060Hz, k: {2 * np.pi * 1060 / self.velocity_mean:.0f}')
-        print(f'f: 6500Hz, k: {2 * np.pi * 6500 / self.velocity_mean:.0f}')
+        Ef[freq>fmax] = np.nan
+        freq[freq>fmax] = np.nan
+
         k  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
+        print(f'Kmax: {k_max:.0f}')
         Ek = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)^2 / (rad/m) ]
 
-        fig, ax = plt.subplots()
+        if ax==None:
+            fig, ax = plt.subplots()
         ax.plot(k[1:], Ek[1:], label='Measured spectrum')
 
         k_ref = np.logspace(np.log10(k[k.size//70]), np.log10(k[k.size//5]), 2)
-        const = Ek[k.size//50] / k_ref[0]**(-5/3)
+        const = Ek[k.size//70] / k_ref[0]**(-5/3)
         ax.plot(k_ref, const*(k_ref)**(-5/3), 'r--', label=r'$k^{-5/3}$')
+
+        for offset in np.arange(-10, 10, 1):
+            ax.axline((0, offset*1.0), slope=-5/3, color='gray', linewidth=0.5, alpha=0.5)
 
         ax.set_xscale('log')
         ax.set_yscale('log')
+
+        ax.vlines(k_max, 0, 100, 'red')
+
+        ax.set_ylim(10**-11, 10**-1)
+        ax.set_xlim(10**1, 10**7)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
         ax.set_ylabel(r'$E(k)$ [m$^3$/s$^2$]')
@@ -205,4 +221,38 @@ class point:
         ax.legend()
         plt.show()
 
+    def energy_spectrum(self, plot=True):
+        segment_length = 2000
+        fmax = 7_800
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
+        Ef[freq>fmax] = np.nan
+        freq[freq>fmax] = np.nan
 
+        E = Ef*freq
+
+        if plot:
+            fig, ax = plt.subplots()
+            ax.plot(freq, E, label='Measured spectrum')
+
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+
+            ax.set_xlabel(r'Frequency [Hz]')
+            ax.set_ylabel(r'$E$ [m$^2$/s$^2$]')
+
+            ax.legend()
+            plt.show()
+        return freq, E
+
+    def PSD(self,):
+        segment_length = 2000
+        fmax = 7_800
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') 
+        Ef[freq>fmax] = np.nan
+        freq[freq>fmax] = np.nan
+
+       
+        plt.loglog(freq, Ef)
+        plt.xlabel('Frequency [Hz]')
+        plt.ylabel('Powe Spectral Density [m^2/s^2Hz]')
+        plt.show()
