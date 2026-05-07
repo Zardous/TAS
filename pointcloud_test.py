@@ -320,3 +320,24 @@ plt.ylabel("Axial Distance")
 
 plt.legend(loc='lower left', fontsize='small')
 plt.show()
+
+from velocity_ray import build_overlay_data, plot_ray_analysis
+
+overlay = build_overlay_data(
+    axial_dist=axial_dist,
+    left_core=left_core,         right_core=right_core,
+    left_halfwidths=left_halfwidths, right_halfwidths=right_halfwidths,
+    m_left=m_left,   c_left=c_left,
+    m_right=m_right, c_right=c_right,
+    x_intersect=x_intersect,   y_intersect=y_intersect,
+    x_inter_left=x_inter_left, x_inter_right=x_inter_right,
+    m_haleft=m_haleft,   c_haleft=c_haleft,
+    m_haright=m_haright, c_haright=c_haright,
+    x_hal_intersect=x_hal_intersect, y_hal_intersect=y_hal_intersect,
+    x_intercept_left=x_intercept_left, x_intercept_right=x_intercept_right,
+)
+
+cloud = PointCloud()
+cloud.read_test_data()
+plot_ray_analysis(cloud, overlay_data=overlay)   # with overlay
+plot_ray_analysis(cloud)                          # clean version unchanged
