@@ -39,7 +39,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.interpolate import interp1d
 from typing import TYPE_CHECKING
-from pointcloud import PointClouds
+from pointcloud import PointCloud
 
 if TYPE_CHECKING:
     pass
