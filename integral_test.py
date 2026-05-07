@@ -9,8 +9,8 @@ cloud.read_test_data()
 n = len(cloud.points)
 
 fig, ((ax1, ax2)) = plt.subplots(1, 2)
-cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
-cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
+cloud.plot_2Dgraph_from_attr_name('velocity_mean', [0,1], ax1)
+cloud.plot_2Dgraph_from_attr_name('velocity_norm', [0,1], ax2)
 
 #mass_flux, momentum_flux, energy_flux = pointcloud_testdata.flux_integrals(np.array(p.radial for lst in pointcloud_testdata.points for p in lst), np.array(p.velocity_mean for lst in pointcloud_testdata.points for p in lst))
 
@@ -39,14 +39,20 @@ for i in range(n):
     xi_s.append(xi_i)
     f_s.append(f_i)
 
-mass_flux_arr /= mass_flux_arr[0] 
+mass_flux_arr /= mass_flux_arr[0]
 momentum_flux_arr /= momentum_flux_arr[0]
 energy_flux_arr /= energy_flux_arr[0]
+x = np.linspace(0,96,500)
+y = (1/(x+1.7))+0.42
+#y = (1/(x+1.45))+0.32
 
 plt.figure()
-plt.plot(axial_dist, mass_flux_arr, label='Mass Flux')
-plt.plot(axial_dist, momentum_flux_arr, label='Momentum Flux')
-plt.plot(axial_dist, energy_flux_arr, label='Energy Flux')
+plt.scatter(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
+plt.scatter(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
+plt.scatter(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')
+plt.plot([0,96], [1,mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
+plt.plot([0,96], [1,1], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
+plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
 plt.title("Normalized Flux Integrals")
 plt.xlabel("Axial Distance [mm]")
 plt.ylabel("Normalized Flux [-]")

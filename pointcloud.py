@@ -324,6 +324,7 @@ class PointCloud:
         ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
         ax.set_xlabel('Radial distance [-]')
 
+
         if idx==None:
             for i in range(7):
                 if attribute == 'velocity_norm':
@@ -352,6 +353,10 @@ class PointCloud:
                 
         else:
             for i in idx: 
+                if attribute == 'velocity_mean':
+                    _,_,_,_,_,_,_,r_half = self.find_halfwidth(np.array([p.velocity_mean for p in self.points[i]]),np.array([p.radial for p in self.points[i]]))
+                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.9,(13 - (i+1)*0.6)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
+                    ax.set_ylim(-0.5,13)
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
@@ -372,7 +377,7 @@ class PointCloud:
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
                 ax.axhline(0, color = 'black', linewidth = 1)
-                ax.grid()
+        ax.grid()
         ax.legend()
         return ax
 
