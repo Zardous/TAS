@@ -2,6 +2,7 @@ from pointcloud import * # Also imports all the imports from pointcloud
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.lines as mlines
+import scipy.signal as sp
 
 cloud = PointCloud()
 cloud.read_test_data()
@@ -14,9 +15,9 @@ cloud.read_test_data()
 #    fig.savefig(f'figure_[{axial_layer}][{i}].png')
 #    plt.close(fig)
 
-fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
+#fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 
-cloud.points[4][3].plot_distribution(ax1, 40)
+#cloud.points[4][3].plot_distribution(ax1, 40)
 
 current_index = 0
 current_layer = 0
@@ -56,18 +57,18 @@ def draw(layer, i):
         
     ax2_5.set_ylim(-0.01,8.01)
 
-    '''ax3.plot(ms, main_point.velocity_arr)
+    ax3.plot(ms, main_point.velocity_arr)
     ax3.set_ylabel('Velocity [m/s]')
     ax3.set_xlabel('Time [ms]')
-    ax3.set_xlim(0, 5000)'''
+    ax3.set_xlim(0, 5000)
 
     freq, ampls = main_point.spectral_analysis(False)
-    ax3.plot(freq, ampls)
-    ax3.set_xlabel(f'Frequency [Hz]')
-    ax3.set_ylabel(f'Amplitude [m/s]')
-    ax3.set_yscale('log')
+    ax4.plot(freq, ampls)
+    ax4.set_xlabel(f'Frequency [Hz]')
+    ax4.set_ylabel(f'Amplitude [m/s]')
+    ax4.set_yscale('log')
 
-    main_point.Kolmogorov(ax4)
+    # main_point.Kolmogorov(ax4)
 
     ax1.set_title(f"Layer: {layer}, Point: {i}")
 
@@ -104,11 +105,27 @@ def on_key(event):
 
     draw(current_layer, current_index)
 
-fig.canvas.mpl_connect("key_press_event", on_key)
+#fig.canvas.mpl_connect("key_press_event", on_key)
 
-draw(current_layer, current_index)
+#draw(current_layer, current_index)
+#plt.show()
+
+cloud = PointCloud()
+cloud.read_test_data()
+
+    # p = cloud.points[1][40]
+    # p.spectral_analysis()
+    # Power spectral density
+
+point1 = cloud.points[1][18]
+point2 = cloud.points[1][43]
+v1 = point1.velocity_arr
+v2 = point2.velocity_arr
+
+correlate = cloud.correlate_pair_by_convolution(v1, v2)
+ms = np.linspace(0, 5_000, correlate.size)
+plt.plot(ms, correlate)
 plt.show()
-
 
 """
 def on_key(event):
