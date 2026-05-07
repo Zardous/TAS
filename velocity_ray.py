@@ -7,6 +7,7 @@ Three subplots per figure:
   1. Velocity u along each ray vs axial distance
   2. Centreline velocity u_c vs axial distance
   3. Normalised velocity u / u_c along each ray vs axial distance
+  4. Ray geometry in physical space (optionally overlaid with core/halfwidth data)
 
 10 rays total (5 left, 5 right).  The jet half-width direction is the *central*
 ray on each side; the other four are evenly spread inside / outside it.
@@ -24,6 +25,32 @@ Provided line equations
     Left  half-width:  r = -0.005114219025903502 * z  +  (-0.48011822450086505)
     Right half-width:  r =  0.004427383697712419 * z  +    0.5691104380882352
 
+Overlay option
+--------------
+Pass a dict to `overlay_data` to overlay core/halfwidth scatter and fit lines
+onto the ray geometry subplot (ax4).  Build this dict in your main script:
+
+    from ray_analysis import build_overlay_data, plot_ray_analysis
+
+    overlay = build_overlay_data(
+        axial_dist        = axial_dist,
+        left_core         = left_core,
+        right_core        = right_core,
+        left_halfwidths   = left_halfwidths,
+        right_halfwidths  = right_halfwidths,
+        # core fit lines
+        m_left=m_left, c_left=c_left,
+        m_right=m_right, c_right=c_right,
+        x_intersect=x_intersect, y_intersect=y_intersect,
+        x_inter_left=x_inter_left, x_inter_right=x_inter_right,
+        # halfwidth fit lines
+        m_haleft=m_haleft, c_haleft=c_haleft,
+        m_haright=m_haright, c_haright=c_haright,
+        x_hal_intersect=x_hal_intersect, y_hal_intersect=y_hal_intersect,
+        x_intercept_left=x_intercept_left, x_intercept_right=x_intercept_right,
+    )
+    plot_ray_analysis(cloud, overlay_data=overlay)
+
 Usage
 -----
     from ray_analysis import plot_ray_analysis
@@ -38,7 +65,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from scipy.interpolate import interp1d
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from pointcloud import PointCloud
 
 if TYPE_CHECKING:
@@ -53,18 +80,161 @@ _DEFAULT_SLOPE_LEFT  = -0.005114219025903502   # negative → left of centreline
 
 
 # ---------------------------------------------------------------------------
+# Helper: build the overlay_data dict from main-script variables
+# ---------------------------------------------------------------------------
+
+def build_overlay_data(
+    axial_dist: np.ndarray,
+    left_core: np.ndarray,
+    right_core: np.ndarray,
+    left_halfwidths: np.ndarray,
+    right_halfwidths: np.ndarray,
+    # --- core fit ---
+    m_left: float,
+    c_left: float,
+    m_right: float,
+    c_right: float,
+    x_intersect: float,
+    y_intersect: float,
+    x_inter_left: float,
+    x_inter_right: float,
+    # --- halfwidth fit ---
+    m_haleft: float,
+    c_haleft: float,
+    m_haright: float,
+    c_haright: float,
+    x_hal_intersect: float,
+    y_hal_intersect: float,
+    x_intercept_left: float,
+    x_intercept_right: float,
+) -> dict[str, Any]:
+    """
+    Convenience function to bundle all combined-graph arrays into the dict
+    expected by plot_ray_analysis(overlay_data=...).
+
+    All parameters match the variable names used in the original main script.
+    Returns a dict that can be passed directly to plot_ray_analysis.
+    """
+    return dict(
+        axial_dist        = np.asarray(axial_dist),
+        left_core         = np.asarray(left_core),
+        right_core        = np.asarray(right_core),
+        left_halfwidths   = np.asarray(left_halfwidths),
+        right_halfwidths  = np.asarray(right_halfwidths),
+        m_left            = float(m_left),
+        c_left            = float(c_left),
+        m_right           = float(m_right),
+        c_right           = float(c_right),
+        x_intersect       = float(x_intersect),
+        y_intersect       = float(y_intersect),
+        x_inter_left      = float(x_inter_left),
+        x_inter_right     = float(x_inter_right),
+        m_haleft          = float(m_haleft),
+        c_haleft          = float(c_haleft),
+        m_haright         = float(m_haright),
+        c_haright         = float(c_haright),
+        x_hal_intersect   = float(x_hal_intersect),
+        y_hal_intersect   = float(y_hal_intersect),
+        x_intercept_left  = float(x_intercept_left),
+        x_intercept_right = float(x_intercept_right),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Internal: draw the combined-graph overlay onto an existing Axes
+# ---------------------------------------------------------------------------
+
+def _draw_combined_overlay(ax: plt.Axes, od: dict[str, Any]) -> None:
+    """
+    Reproduce the "messy combined graph" (vertical orientation, r on x-axis,
+    z on y-axis) on top of the ray geometry subplot.
+
+    Scatter points, fit-line extrapolations, collapse/pole markers, and
+    reference lines are all added with reduced alpha so they sit behind the
+    ray fan without obscuring it.
+    """
+    axial_dist       = od["axial_dist"]
+    left_core        = od["left_core"]
+    right_core       = od["right_core"]
+    left_halfwidths  = od["left_halfwidths"]
+    right_halfwidths = od["right_halfwidths"]
+
+    m_left, c_left   = od["m_left"],   od["c_left"]
+    m_right, c_right = od["m_right"],  od["c_right"]
+    x_intersect      = od["x_intersect"]
+    y_intersect      = od["y_intersect"]
+    x_inter_left     = od["x_inter_left"]
+    x_inter_right    = od["x_inter_right"]
+
+    m_haleft,  c_haleft  = od["m_haleft"],  od["c_haleft"]
+    m_haright, c_haright = od["m_haright"], od["c_haright"]
+    x_hal_intersect  = od["x_hal_intersect"]
+    y_hal_intersect  = od["y_hal_intersect"]
+    x_intercept_left  = od["x_intercept_left"]
+    x_intercept_right = od["x_intercept_right"]
+
+    # ---- shared extrapolation domain ----
+    z_max_core = x_intersect * 1.2
+    x_extrap_core = np.linspace(0, z_max_core, 100)
+    x_extrap_half = np.linspace(x_hal_intersect * 1.2, 100, 101)
+
+    # ---- core scatter & fits ----
+    ax.scatter(left_core,  axial_dist, color="steelblue",  s=25, alpha=0.55,
+               zorder=2, label="Left core (data)")
+    ax.scatter(right_core, axial_dist, color="darkorange", s=25, alpha=0.55,
+               zorder=2, label="Right core (data)")
+    ax.plot(m_left  * x_extrap_core + c_left,  x_extrap_core,
+            color="steelblue",  ls="--", lw=1.2, alpha=0.6,
+            label="Left core fit")
+    ax.plot(m_right * x_extrap_core + c_right, x_extrap_core,
+            color="darkorange", ls="--", lw=1.2, alpha=0.6,
+            label="Right core fit")
+    ax.scatter(y_intersect, x_intersect, color="red", s=60, zorder=5,
+               label=f"Core collapse  z={x_intersect:.1f}")
+
+    # ---- halfwidth scatter & fits ----
+    ax.scatter(left_halfwidths,  axial_dist, color="mediumseagreen", s=25,
+               alpha=0.55, zorder=2, label="Left halfwidth (data)")
+    ax.scatter(right_halfwidths, axial_dist, color="mediumpurple",   s=25,
+               alpha=0.55, zorder=2, label="Right halfwidth (data)")
+    ax.plot(m_haleft  * x_extrap_half + c_haleft,  x_extrap_half,
+            color="mediumseagreen", ls="--", lw=1.2, alpha=0.6,
+            label="Left halfwidth fit")
+    ax.plot(m_haright * x_extrap_half + c_haright, x_extrap_half,
+            color="mediumpurple",   ls="--", lw=1.2, alpha=0.6,
+            label="Right halfwidth fit")
+    ax.scatter(y_hal_intersect, x_hal_intersect, color="red",
+               marker="^", s=70, zorder=5,
+               label=f"Halfwidth pole  z={x_hal_intersect:.1f}")
+
+    # ---- pole / outlet reference lines ----
+    ax.axhline(y=0,                 color="gray",  ls="--", lw=0.8,
+               alpha=0.5, label="Jet outlet  (z=0)")
+    ax.axhline(y=x_inter_left,      color="blue",  ls=":",  lw=0.9,
+               alpha=0.6, label=f"Core pole L  z={x_inter_left:.1f}")
+    ax.axhline(y=x_inter_right,     color="green", ls=":",  lw=0.9,
+               alpha=0.6, label=f"Core pole R  z={x_inter_right:.1f}")
+    ax.axhline(y=x_intercept_left,  color="blue",  ls="-.", lw=0.9,
+               alpha=0.6, label=f"HW pole L  z={x_intercept_left:.1f}")
+    ax.axhline(y=x_intercept_right, color="green", ls="-.", lw=0.9,
+               alpha=0.6, label=f"HW pole R  z={x_intercept_right:.1f}")
+    ax.axvline(x=0,                 color="gray",  ls="--", lw=0.8, alpha=0.5)
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
 def plot_ray_analysis(
     cloud,
     pole: tuple[float, float] = (0.0823, -109.964),
-    n_rays: int = 5,
+    n_rays: int = 3,
     slope_half_spread: float = 0.4,
     vel_attr: str = "velocity_mean",
     fig_path: str | None = "ray_analysis.png",
     slope_hw_right: float | None = None,
     slope_hw_left:  float | None = None,
+    overlay_data: dict[str, Any] | None = None,
 ) -> plt.Figure:
     """
     Parameters
@@ -85,6 +255,11 @@ def plot_ray_analysis(
                         default from the provided line fit.
     slope_hw_left     : dr/dz for the left halfwidth ray (expected negative).
                         If None, uses the default from the provided line fit.
+    overlay_data      : dict produced by build_overlay_data().  When supplied,
+                        the core radius and halfwidth scatter, fit lines, and
+                        reference markers from the combined graph are drawn
+                        behind the ray fan in the geometry subplot (ax4).
+                        Pass None (default) to show the clean ray geometry only.
     """
     if n_rays % 2 == 0:
         raise ValueError("n_rays must be odd so the half-width ray is the centre.")
@@ -176,7 +351,7 @@ def plot_ray_analysis(
             u_norm = us / uc_ray
         return zs, us, u_norm
 
-  # ------------------------------------------------------------------
+    # ------------------------------------------------------------------
     # 5.  Plot
     # ------------------------------------------------------------------
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
@@ -260,8 +435,12 @@ def plot_ray_analysis(
     ax3.grid(True, alpha=0.25)
 
     # ---- Subplot 4 : Ray Geometry in Physical Space ------------------
-    z_max = max(z_vals) if z_vals else 100
-    z_extrap = np.linspace(pole_z, z_max, 100)
+    z_max = max(z_vals) if z_vals else 300
+    z_extrap = np.linspace(pole_z, z_max, 300)
+
+    # Draw combined-graph data first (behind rays) when overlay supplied
+    if overlay_data is not None:
+        _draw_combined_overlay(ax4, overlay_data)
 
     ax4.axvline(0, color="k", lw=1.5, label="Jet axis (r=0)")
 
@@ -279,17 +458,20 @@ def plot_ray_analysis(
         ax4.plot(r_line, z_extrap, color=c_left[i], lw=lw, ls=ls,
                  label=ray_label("L", i) if i == hw_idx else "")
 
-    ax4.plot(pole_r, pole_z, 'ro', markersize=8, label="Estimated Pole Position")
+    ax4.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
+             label="Estimated Pole Position")
     ax4.axhline(pole_z, color="grey", ls=":", alpha=0.7)
 
     ax4.set_xlabel("Radial Distance / Halfwidth  $r$")
     ax4.set_ylabel("Axial distance  $z$")
-    ax4.set_title("Ray Geometry Extrapolation")
-    
-    # Filter duplicate legend labels
+    overlay_suffix = " + combined graph" if overlay_data is not None else ""
+    ax4.set_title(f"Ray Geometry Extrapolation{overlay_suffix}")
+
+    # Deduplicate legend entries
     handles, labels = ax4.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
-    ax4.legend(by_label.values(), by_label.keys(), fontsize=7)
+    ax4.legend(by_label.values(), by_label.keys(),
+               fontsize=6, ncol=2, loc="best")
     ax4.grid(True, alpha=0.25)
 
     plt.tight_layout()
@@ -299,9 +481,80 @@ def plot_ray_analysis(
         print(f"Figure saved → {fig_path}")
 
     plt.show()
+
+    # ---- Subplot 3 : normalised velocity u / u_c ---------------------
+    plt.plot()
+    plt.axhline(0.5, color="grey", ls=":", lw=1.2,
+                label="$u/u_c = 0.5$  (half-width definition)")
+    plt.axhline(1.0, color="grey", ls=":", lw=0.8, alpha=0.5)
+
+    for i, slope in enumerate(right_slopes):
+        zs, _, u_norm = ray_data(slope)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        plt.plot(zs, u_norm, color=c_right[i], lw=lw, ls=ls,
+                    label=ray_label("R", i))
+
+    for i, slope in enumerate(left_slopes):
+        zs, _, u_norm = ray_data(slope)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        plt.plot(zs, u_norm, color=c_left[i], lw=lw, ls=ls,
+                    label=ray_label("L", i))
+
+    plt.xlabel("Axial distance  $z/d$")
+    plt.ylabel("$u \\ / \\ u_c$")
+    plt.title("Normalised velocity  $u/u_c$")
+    plt.legend(fontsize=7, ncol=2)
+    plt.grid(True, alpha=0.25)
+    plt.show()
+
+    plt.plot()
+    z_max = max(z_vals) if z_vals else 100
+    z_extrap = np.linspace(pole_z, z_max, 100)
+
+    # Draw combined-graph data first (behind rays) when overlay supplied
+    if overlay_data is not None:
+        _draw_combined_overlay(ax4, overlay_data)
+
+    plt.axvline(0, color="k", lw=1.5, label="Jet axis (r=0)")
+
+    for i, slope in enumerate(right_slopes):
+        r_line = pole_r + slope * (z_extrap - pole_z)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        plt.plot(r_line, z_extrap, color=c_right[i], lw=lw, ls=ls,
+                 label=ray_label("R", i) if i == hw_idx else "")
+
+    for i, slope in enumerate(left_slopes):
+        r_line = pole_r + slope * (z_extrap - pole_z)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        plt.plot(r_line, z_extrap, color=c_left[i], lw=lw, ls=ls,
+                 label=ray_label("L", i) if i == hw_idx else "")
+
+    plt.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
+             label="Estimated Pole Position")
+    plt.axhline(pole_z, color="grey", ls=":", alpha=0.7)
+
+    plt.xlabel("Radial Distance / Halfwidth  $r$")
+    plt.ylabel("Axial distance  $z$")
+    overlay_suffix = " + combined graph" if overlay_data is not None else ""
+    plt.title(f"Ray Geometry Extrapolation{overlay_suffix}")
+
+    # Deduplicate legend entries
+    handles, labels = ax4.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    plt.legend(by_label.values(), by_label.keys(),
+               fontsize=6, ncol=2, loc="best")
+    plt.grid(True, alpha=0.25)
+    plt.show()
     return fig
+
+
 
 if __name__ == "__main__":
     cloud = PointCloud()
     cloud.read_test_data()
-    plot_ray_analysis(cloud)    
+    plot_ray_analysis(cloud)
+
