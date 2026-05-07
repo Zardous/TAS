@@ -152,6 +152,7 @@ plt.xlabel("Hot Wire Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(left=1.5)
 plt.ylim(bottom=0, top=11.5)
+plt.grid(True)
 plt.show()
 
 plt.scatter(voltage, velocity, color = "green")   
@@ -161,6 +162,7 @@ plt.xlabel("Hot Wire Voltage [V]")
 plt.ylabel("Velocity [m/s]")
 plt.xlim(left=1.5)
 plt.ylim(bottom=0, top=11.5)
+plt.grid(True)
 plt.show()
    
 #def poly_func(x, y):

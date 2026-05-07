@@ -208,6 +208,7 @@ class PointCloud:
         I1 = np.trapezoid(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
         I2 = np.trapezoid(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
         I3 = np.trapezoid(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
+        I4 = np.trapezoid(f_s, xi_s)
 
         xi_s2 = xi[:np.argmin(abs(pos))]
         f_s2 = f[:np.argmin(abs(pos))]
@@ -312,7 +313,7 @@ class PointCloud:
         
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(titles[attribute])
-        ax.set_ylabel(f'[{suffixes[attribute]}]')
+        ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
         ax.set_xlabel('Radial distance [-]')
 
         if idx==None:
