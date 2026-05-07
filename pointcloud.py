@@ -168,6 +168,14 @@ class PointCloud:
             right_up_max_ = over_half[-1]
             left_up_max_ = over_half[0]
         return right_up_max_, left_up_max_
+    
+    def _polefromtheory(self):
+        if not hasattr(self, 'Uj'):
+            all_velocity_means = np.array([p.velocity_mean for lst in self.points for p in lst])
+            self.Uj = np.max(all_velocity_means)
+        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[2:7]])
+       
+        return self.Uj / U0x
         
     def __shift_velocities(self):
         for lst in self.points:
