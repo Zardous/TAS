@@ -300,3 +300,8 @@ def plot_ray_analysis(
 
     plt.show()
     return fig
+
+if __name__ == "__main__":
+    cloud = PointCloud()
+    cloud.read_test_data()
+    plot_ray_analysis(cloud)    
