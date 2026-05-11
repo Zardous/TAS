@@ -47,13 +47,15 @@ y = (1/(x+1.7))+0.42
 #y = (1/(x+1.45))+0.32
 
 plt.figure()
-plt.scatter(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
-plt.scatter(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
-plt.scatter(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')
+plt.plot(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
+plt.plot(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
+plt.plot(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')
 plt.plot([0,96], [1,mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
 plt.plot([0,96], [1,1], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
 plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
 plt.title("Normalized Flux Integrals")
+plt.ylim((0,3.5))
+plt.xlim((0,100))
 plt.xlabel("Axial Distance [mm]")
 plt.ylabel("Normalized Flux [-]")
 plt.annotate(f'Final mass flux value: {round(mass_flux_arr[-1],1)}', xy = (1,2.95), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
