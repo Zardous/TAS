@@ -2,22 +2,11 @@ from pointcloud import * # Also imports all the imports from pointcloud
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.lines as mlines
-import scipy.signal as sp
 
 cloud = PointCloud()
 cloud.read_test_data()
 
-
-#axial_layer = 4
-#for i in range(len(cloud.points[axial_layer])):
-#    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-#    cloud.points[axial_layer][i].plot_distribution(ax,40)
-#    fig.savefig(f'figure_[{axial_layer}][{i}].png')
-#    plt.close(fig)
-
-#fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
-
-#cloud.points[4][3].plot_distribution(ax1, 40)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 
 current_index = 10
 current_layer = 4
@@ -56,17 +45,6 @@ def draw(layer, i):
     ax2_5.scatter(main_point.radial, main_point.axial, s=50, color="red")
         
     ax2_5.set_ylim(-0.01,8.01)
-
-    ax3.plot(ms, main_point.velocity_arr)
-    ax3.set_ylabel('Velocity [m/s]')
-    ax3.set_xlabel('Time [ms]')
-    ax3.set_xlim(0, 5000)
-
-    # freq, ampls = main_point.energy_spectrum(False)
-    # ax3.plot(freq, ampls)
-    # ax3.set_xlabel(f'Frequency [Hz]')
-    # ax3.set_yscale('log')
-    # ax3.set_ylim(10**-5, 10**0)
 
     main_point.turbulence_power(ax3)
 
@@ -107,68 +85,9 @@ def on_key(event):
 
     draw(current_layer, current_index)
 
-#fig.canvas.mpl_connect("key_press_event", on_key)
-
-#draw(current_layer, current_index)
-#plt.show()
-
-cloud = PointCloud()
-cloud.read_test_data()
-
-    # p = cloud.points[1][40]
-    # p.spectral_analysis()
-    # Power spectral density
-
-point1 = cloud.points[1][18]
-point2 = cloud.points[1][43]
-v1 = point1.velocity_arr
-v2 = point2.velocity_arr
-
-correlate = cloud.correlate_pair_by_convolution(v1, v2)
-ms = np.linspace(0, 5_000, correlate.size)
-plt.plot(ms, correlate)
-plt.show()
-
-"""
-def on_key(event):
-    global current_index, current_layer
-
-    if event.key == "right":
-        current_index = (current_index + 1) % len(cloud.points[current_layer])
-
-    elif event.key == "left":
-        current_index = (current_index - 1) % len(cloud.points[current_layer])
-
-    elif event.key == "up":
-        current_layer = (current_layer + 1) % len(cloud.points)
-        current_index = 0 
-
-    elif event.key == "down":
-        current_layer = (current_layer - 1) % len(cloud.points)
-        current_index = 0  
-
-    draw(current_layer, current_index)
-
-
 fig.canvas.mpl_connect("key_press_event", on_key)
 
 draw(current_layer, current_index)
 plt.show()
-
-#anim = FuncAnimation(fig, update, frames=len(cloud.points[axial_layer]), interval=200, repeat=True)
-#fig.show() 
-"""
-
-"""
-    def update(i):
-    ax1.clear()  
-    cloud.points[axial_layer][i].plot_distribution(ax1, 40)
-    ax3 = cloud.plot_contour_attr('velocity_mean', ax2)
-
-    main_point=cloud.points[axial_layer][i]
-    ax3.scatter(main_point.radial, main_point.axial, s=50, color="red")
-"""
-# Save as GIF
-#anim.save(f'axial_layer_{axial_layer}.gif', writer='pillow')
 
 input()

@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import matplotlib.axes as axes
 from scipy.signal.windows import kaiser
 from scipy.fft import fft, fftfreq
-from scipy.signal import welch, periodogram
+from scipy.signal import welch, convolve
+from scipy.interpolate import interp1d
 
 class point:
     def __init__(self, radial_pos, axial_pos, voltage_data):
@@ -193,19 +194,29 @@ class point:
         freq[freq>fmax] = np.nan
 
         k  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
-        print(f'Kmax: {k_max:.0f}')
         Ek = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)^2 / (rad/m) ]
 
         if ax==None:
             fig, ax = plt.subplots()
-        ax.plot(k[1:], Ek[1:], label='Measured spectrum')
 
-        k_ref = np.logspace(np.log10(k[k.size//70]), np.log10(k[k.size//5]), 2)
+        if False:
+            log_Ek = np.log10(Ek+1e-12)
+            log_k = np.log10(k+1e-12)
+
+            log_k_resample = np.linspace(np.min(log_k[np.isfinite(log_k)]), np.max(log_k[np.isfinite(log_k)]), 100)
+            f = interp1d(log_k, log_Ek, kind='linear')
+            log_Ek_resample = f(log_k_resample)
+
+            ax.plot(10**log_k_resample, 10**log_Ek_resample, label='Smoothed spectrum')
+
+        ax.plot(k[1:], Ek[1:], label='Measured spectrum', linewidth=0.5)
+
+        k_ref = np.logspace(np.log10(k[k.size//50]), np.log10(k[k.size//5]), 2)
         const = Ek[k.size//70] / k_ref[0]**(-5/3)
-        ax.plot(k_ref, const*(k_ref)**(-5/3), 'r--', label=r'$k^{-5/3}$')
+        ax.plot(k_ref, const*(k_ref)**(-5/3), 'k--', label=r'$k^{-5/3}$')
 
-        for offset in np.arange(-10, 10, 1):
-            ax.axline((0, offset*1.0), slope=-5/3, color='gray', linewidth=0.5, alpha=0.5)
+        # for offset in np.arange(-10, 10, 1):
+        #     ax.axline((0, offset*1.0), slope=-5/3, color='gray', linewidth=0.5, alpha=0.5)
 
         ax.set_xscale('log')
         ax.set_yscale('log')
@@ -213,7 +224,7 @@ class point:
         ax.vlines(k_max, 0, 100, 'red')
 
         ax.set_ylim(10**-11, 10**-1)
-        ax.set_xlim(10**1, 10**7)
+        ax.set_xlim(10**1, 10**5)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
         ax.set_ylabel(r'$E(k)$ [m$^3$/s$^2$]')
@@ -255,4 +266,59 @@ class point:
         plt.loglog(freq, Ef)
         plt.xlabel('Frequency [Hz]')
         plt.ylabel('Powe Spectral Density [m^2/s^2Hz]')
+        plt.show()
+
+    def turbulence_power(self, ax: None|axes.Axes=None):
+        if ax==None:
+            fig, ax = plt.subplots()
+
+        segment_length = 2000
+        fmax = 7_800
+        freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
+
+        k: np.ndarray  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
+        Ek: np.ndarray = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)² / (rad/m) ]
+
+        k[freq>fmax] = np.nan
+        Ek[freq>fmax] = np.nan
+
+        N = 100
+        k_avg_kernel = np.ones((N,))/N
+
+        resample_smoother = np.ones((20,))/20
+
+        diff_kernel = np.zeros((N,))
+        diff_kernel[-1] = 1
+        diff_kernel[0] = -1
+
+        if True:
+            log_Ek = np.log10(Ek+1e-12)
+            log_k = np.log10(k+1e-12)
+
+            log_k_resample = np.linspace(0, np.max(log_k[np.isfinite(log_k)]), 1000)
+            f = interp1d(log_k, log_Ek, kind='linear')
+            log_Ek_resample = f(log_k_resample)
+
+            first: np.ndarray = log_Ek_resample[0]
+            last: np.ndarray = log_Ek_resample[-1]
+            rs_size = resample_smoother.size
+            log_Ek_resample = convolve(np.concat([first.repeat(rs_size), log_Ek_resample, last.repeat(rs_size)]), resample_smoother, mode='same')[rs_size:-rs_size]
+
+        dlog_Ek= convolve(log_Ek_resample, diff_kernel[::-1], mode='valid')
+        dlog_k= convolve(log_k_resample, diff_kernel[::-1], mode='valid')
+        power = dlog_Ek/dlog_k
+
+        k_new_conv = convolve(log_k_resample, k_avg_kernel, mode='valid')
+
+        # ax.scatter(10**log_k_resample, log_Ek_resample, label='PSD', s=0.1)
+        ax.plot(10**k_new_conv, power, label=r'$\alpha$', color='red')
+        ax.hlines(-5/3, 10**1, 10**5, label='-5/3', color='black', linestyles='--')
+        ax.set_xscale('log')
+        ax.set_xlim(10**1, 10**5)
+        ax.set_ylim(-8, 5)
+
+        ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
+        ax.set_ylabel(r'$\alpha$ ($E \propto k^{\alpha}$), [-]')
+
+        ax.legend()
         plt.show()
