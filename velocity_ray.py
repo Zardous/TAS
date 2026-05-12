@@ -558,7 +558,7 @@ def plot_ray_analysis(
 
     # Only plot the overlay where z != 0 to avoid division by zero
     z_nonzero = z_arr[z_arr != 0]
-    overlay = (1.0 / z_nonzero) * c_overlay + 5
+    overlay = (1.0 / (z_nonzero-2)) * c_overlay + 7
     ax_uc.plot(z_nonzero, overlay, "r--", lw=1.8,
             label=f"$c \\,/\\, z$  ($c = {c_overlay}$)")
 
