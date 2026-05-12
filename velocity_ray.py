@@ -144,7 +144,7 @@ def build_overlay_data(
 # Internal: draw the combined-graph overlay onto an existing Axes
 # ---------------------------------------------------------------------------
 
-def _draw_combined_overlay(ax: plt.Axes, od: dict[str, Any]) -> None:
+
     """
     Reproduce the "messy combined graph" (vertical orientation, r on x-axis,
     z on y-axis) on top of the ray geometry subplot.
@@ -549,7 +549,37 @@ def plot_ray_analysis(
                fontsize=6, ncol=2, loc="best")
     plt.grid(True, alpha=0.25)
     plt.show()
+
+    c_overlay = 5.0   # <-- adjust this constant to shift the curve up/down
+
+    fig_uc, ax_uc = plt.subplots(figsize=(8, 5))
+
+    ax_uc.plot(z_arr, uc_arr, "k-", lw=2.5, label="Centreline $u_c$")
+
+    # Only plot the overlay where z != 0 to avoid division by zero
+    z_nonzero = z_arr[z_arr != 0]
+    overlay = (1.0 / z_nonzero) * c_overlay + 5
+    ax_uc.plot(z_nonzero, overlay, "r--", lw=1.8,
+            label=f"$c \\,/\\, z$  ($c = {c_overlay}$)")
+
+    ax_uc.set_xlabel("Axial distance  $z/d$")
+    ax_uc.set_ylabel("Centreline velocity  $u_c$")
+    ax_uc.set_title("Centreline velocity with $1/z$ decay overlay")
+    ax_uc.legend()
+    ax_uc.grid(True, alpha=0.25)
+    fig_uc.tight_layout()
+
+    if fig_path:
+        _uc_path = fig_path.replace(".png", "_centreline.png")
+        fig_uc.savefig(_uc_path, dpi=150, bbox_inches="tight")
+        print(f"Centreline figure saved → {_uc_path}")
+
+    plt.show()
+
     return fig
+
+
+
 
 
 

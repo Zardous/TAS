@@ -138,6 +138,21 @@ class PointCloud:
         over_half = np.where(vel/max>=0.05)
         right_up_e = over_half[0][-1]
         left_up_e = over_half[0][0]
+        right_down_e = right_up_e
+        left_down_e = left_up_e
+        right_pos_e = (pos[right_down_e]+pos[right_up_e])/2
+        left_pos_e = (pos[left_down_e]+pos[left_up_e])/2
+        indice_over_half = np.where(vel/max<0.055)
+        indice_under_half = np.where(vel/max>0.045)
+        indice_half_e = np.intersect1d(indice_under_half, indice_over_half)
+        #print(f'Half width at: {pos[indice_half]}')
+        r_edge = (right_pos_e + left_pos_e)/2
+        return indice_half_e, right_up_e, left_up_e, right_down_e, left_down_e, right_pos_e, left_pos_e, r_edge
+    def find_bs(self, vel: np.ndarray, pos: np.ndarray):
+        max = np.max(vel)
+        over_half = np.where(vel/max>=0.55)
+        right_up_e = over_half[0][-1]
+        left_up_e = over_half[0][0]
         right_down_e = right_up_e+1
         left_down_e = left_up_e-1
         right_pos_e = (pos[right_down_e]+pos[right_up_e])/2
@@ -173,7 +188,7 @@ class PointCloud:
         if not hasattr(self, 'Uj'):
             all_velocity_means = np.array([p.velocity_mean for lst in self.points for p in lst])
             self.Uj = np.max(all_velocity_means)
-        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[2:7]])
+        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[4:7]])
        
         return self.Uj / U0x
         

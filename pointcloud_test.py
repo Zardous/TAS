@@ -346,7 +346,7 @@ plot_ray_analysis(cloud)
 
 # Use ALL stations beyond the potential core, not a hardcoded [4:7]
 points = cloud._polefromtheory()          # Uj/U0x for every station
-x_fit  = np.array(axial_dist[2:7])
+x_fit  = np.array(axial_dist[4:7])
 y_fit = points
 
 m_, c_ = np.polyfit(x_fit, y_fit, 1)
