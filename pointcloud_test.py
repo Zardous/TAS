@@ -102,7 +102,7 @@ for j in range(len(pointcloud_testdata.points)):
 plt.title("Mean Velocity")
 plt.show()
 '''
-
+'''
 for j in range(len(left_core)):
     plt.scatter(axial_dist[j], left_core[j])
     plt.scatter(axial_dist[j], right_core[j])
@@ -118,7 +118,7 @@ plt.title("Halfwidth vs axial distance")
 plt.xlabel("Axial distance")
 plt.ylabel("Halfwidth")
 plt.show()
-
+'''
 valid_idx = ~np.isnan(left_core) & ~np.isnan(right_core)
 
 x_clean, y_leftcore_clean, y_rightcore_clean = axial_dist[valid_idx], left_core[valid_idx], right_core[valid_idx]
@@ -156,7 +156,7 @@ plt.legend()
 plt.show()
 '''
 #vertical version of the graph
-
+'''
 plt.figure(figsize=(5, 8)) 
 
 # 1. Swap the x and y variables in scatter plots
@@ -183,7 +183,7 @@ plt.ylabel("Axial Distance")
 
 plt.legend(fontsize='small')
 plt.show()
-
+'''
 
 valid_idx_half = ~np.isnan(left_halfwidths) & ~np.isnan(right_halfwidths)
 
@@ -254,6 +254,7 @@ plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
 plt.legend(loc='upper left', fontsize='small')
 plt.show()
 '''
+
 plt.figure(figsize=(6, 10)) # Taller figure size
 
 # Swap x and y in scatters
@@ -320,3 +321,53 @@ plt.ylabel("Axial Distance")
 
 plt.legend(loc='lower left', fontsize='small')
 plt.show()
+
+from velocity_ray import build_overlay_data, plot_ray_analysis
+
+overlay = build_overlay_data(
+    axial_dist=axial_dist,
+    left_core=left_core,         right_core=right_core,
+    left_halfwidths=left_halfwidths, right_halfwidths=right_halfwidths,
+    m_left=m_left,   c_left=c_left,
+    m_right=m_right, c_right=c_right,
+    x_intersect=x_intersect,   y_intersect=y_intersect,
+    x_inter_left=x_inter_left, x_inter_right=x_inter_right,
+    m_haleft=m_haleft,   c_haleft=c_haleft,
+    m_haright=m_haright, c_haright=c_haright,
+    x_hal_intersect=x_hal_intersect, y_hal_intersect=y_hal_intersect,
+    x_intercept_left=x_intercept_left, x_intercept_right=x_intercept_right,
+)
+
+cloud = PointCloud()
+cloud.read_test_data()
+plot_ray_analysis(cloud, overlay_data=overlay)   # with overlay
+plot_ray_analysis(cloud) 
+
+
+# Use ALL stations beyond the potential core, not a hardcoded [4:7]
+points = cloud._polefromtheory()          # Uj/U0x for every station
+x_fit  = np.array(axial_dist[4:7])
+y_fit = points
+
+m_, c_ = np.polyfit(x_fit, y_fit, 1)
+
+x0 = -c_ / m_          # virtual origin  [x/d]
+B         =  1.0 / m_         # empirical constant (if x already in x/d)
+
+x_plot      = np.linspace(x0, x_fit * 1.05, 200)
+Uj_over_U0x = m_ * x_plot + c_
+
+print(f"Virtual origin  x0/d = {x0:.3f}")
+print(f"Empirical const B    = {B:.3f}")
+
+fig, ax = plt.subplots()
+ax.scatter(x_fit, y_fit, label=r"Measured $U_J/U_0(x)$", zorder=3)
+ax.plot(x_plot, Uj_over_U0x, 'r-',
+        label=rf"Fit: $U_J/U_0 = (x0 - {x0:.2f})/{B:.2f}$")
+ax.axvline(x0, color='grey', ls='--', alpha=0.6,
+           label=f"Virtual origin $x_0 = {x0:.2f}$")
+ax.set_xlabel(r"Axial distance $x/d$")
+ax.set_ylabel(r"$U_J \,/\, U_0(x)$")
+ax.set_title("Jet Centreline Velocity Decay")
+ax.legend(); ax.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()

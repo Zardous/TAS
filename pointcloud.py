@@ -138,6 +138,21 @@ class PointCloud:
         over_half = np.where(vel/max>=0.05)
         right_up_e = over_half[0][-1]
         left_up_e = over_half[0][0]
+        right_down_e = right_up_e
+        left_down_e = left_up_e
+        right_pos_e = (pos[right_down_e]+pos[right_up_e])/2
+        left_pos_e = (pos[left_down_e]+pos[left_up_e])/2
+        indice_over_half = np.where(vel/max<0.055)
+        indice_under_half = np.where(vel/max>0.045)
+        indice_half_e = np.intersect1d(indice_under_half, indice_over_half)
+        #print(f'Half width at: {pos[indice_half]}')
+        r_edge = (right_pos_e + left_pos_e)/2
+        return indice_half_e, right_up_e, left_up_e, right_down_e, left_down_e, right_pos_e, left_pos_e, r_edge
+    def find_bs(self, vel: np.ndarray, pos: np.ndarray):
+        max = np.max(vel)
+        over_half = np.where(vel/max>=0.55)
+        right_up_e = over_half[0][-1]
+        left_up_e = over_half[0][0]
         right_down_e = right_up_e+1
         left_down_e = left_up_e-1
         right_pos_e = (pos[right_down_e]+pos[right_up_e])/2
@@ -168,6 +183,14 @@ class PointCloud:
             right_up_max_ = over_half[-1]
             left_up_max_ = over_half[0]
         return right_up_max_, left_up_max_
+    
+    def _polefromtheory(self):
+        if not hasattr(self, 'Uj'):
+            all_velocity_means = np.array([p.velocity_mean for lst in self.points for p in lst])
+            self.Uj = np.max(all_velocity_means)
+        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[4:7]])
+       
+        return self.Uj / U0x
         
     def __shift_velocities(self):
         for lst in self.points:
@@ -208,6 +231,7 @@ class PointCloud:
         I1 = np.trapezoid(xi_s * f_s,    xi_s)   # n=1  (mass flux integral)
         I2 = np.trapezoid(xi_s * f_s**2, xi_s)   # n=2  (momentum flux integral)
         I3 = np.trapezoid(xi_s * f_s**3, xi_s)   # n=3  (kinetic energy flux integral)
+        I4 = np.trapezoid(f_s, xi_s)
 
         xi_s2 = xi[:np.argmin(abs(pos))]
         f_s2 = f[:np.argmin(abs(pos))]
@@ -312,8 +336,9 @@ class PointCloud:
         
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(titles[attribute])
-        ax.set_ylabel(f'[{suffixes[attribute]}]')
+        ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
         ax.set_xlabel('Radial distance [-]')
+
 
         if idx==None:
             for i in range(7):
@@ -343,6 +368,10 @@ class PointCloud:
                 
         else:
             for i in idx: 
+                if attribute == 'velocity_mean':
+                    _,_,_,_,_,_,_,r_half = self.find_halfwidth(np.array([p.velocity_mean for p in self.points[i]]),np.array([p.radial for p in self.points[i]]))
+                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.9,(13 - (i+1)*0.6)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
+                    ax.set_ylim(-0.5,13)
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
@@ -363,7 +392,7 @@ class PointCloud:
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
                 ax.axhline(0, color = 'black', linewidth = 1)
-                ax.grid()
+        ax.grid()
         ax.legend()
         return ax
 
