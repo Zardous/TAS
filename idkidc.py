@@ -18,8 +18,8 @@ fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 6))
 
 cloud.points[4][3].plot_distribution(ax1, 40)
 
-current_index = 0
-current_layer = 0
+current_index = 10
+current_layer = 4
 
 def draw(layer, i):
     ax1.clear()
@@ -61,13 +61,13 @@ def draw(layer, i):
     ax3.set_xlabel('Time [ms]')
     ax3.set_xlim(0, 5000)'''
 
-    freq, ampls = main_point.energy_spectrum(False)
-    ax3.plot(freq, ampls)
-    ax3.set_xlabel(f'Frequency [Hz]')
-    # ax3.set_ylabel(f'Amplitude [m/s]')
-    ax3.set_ylabel(f'Energy [m²/s²]')
-    ax3.set_yscale('log')
+    # freq, ampls = main_point.energy_spectrum(False)
+    # ax3.plot(freq, ampls)
+    # ax3.set_xlabel(f'Frequency [Hz]')
+    # ax3.set_yscale('log')
     # ax3.set_ylim(10**-5, 10**0)
+
+    main_point.turbulence_power(ax3)
 
     main_point.Kolmogorov(ax4)
 
