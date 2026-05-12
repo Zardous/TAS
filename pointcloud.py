@@ -173,7 +173,7 @@ class PointCloud:
         if not hasattr(self, 'Uj'):
             all_velocity_means = np.array([p.velocity_mean for lst in self.points for p in lst])
             self.Uj = np.max(all_velocity_means)
-        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[2:7]])
+        U0x = np.array([np.max([p.velocity_mean for p in lst]) for lst in self.points[4:7]])
        
         return self.Uj / U0x
         
