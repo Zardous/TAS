@@ -30,7 +30,7 @@ Overlay option
 Pass a dict to `overlay_data` to overlay core/halfwidth scatter and fit lines
 onto the ray geometry subplot (ax4).  Build this dict in your main script:
 
-    from ray_analysis import build_overlay_data, plot_ray_analysis
+    from velocity_ray import build_overlay_data, plot_ray_analysis
 
     overlay = build_overlay_data(
         axial_dist        = axial_dist,
@@ -53,7 +53,7 @@ onto the ray geometry subplot (ax4).  Build this dict in your main script:
 
 Usage
 -----
-    from ray_analysis import plot_ray_analysis
+    from velocity_ray import plot_ray_analysis
     plot_ray_analysis(cloud)                          # uses default slopes
     plot_ray_analysis(cloud, slope_half_spread=0.3)   # tighter fan
     plot_ray_analysis(cloud, fig_path="rays.png")
@@ -144,7 +144,7 @@ def build_overlay_data(
 # Internal: draw the combined-graph overlay onto an existing Axes
 # ---------------------------------------------------------------------------
 
-
+def _draw_combined_overlay(ax: plt.Axes, od: dict) -> None:   # FIX: was missing def
     """
     Reproduce the "messy combined graph" (vertical orientation, r on x-axis,
     z on y-axis) on top of the ray geometry subplot.
@@ -159,23 +159,23 @@ def build_overlay_data(
     left_halfwidths  = od["left_halfwidths"]
     right_halfwidths = od["right_halfwidths"]
 
-    m_left, c_left   = od["m_left"],   od["c_left"]
-    m_right, c_right = od["m_right"],  od["c_right"]
-    x_intersect      = od["x_intersect"]
-    y_intersect      = od["y_intersect"]
-    x_inter_left     = od["x_inter_left"]
-    x_inter_right    = od["x_inter_right"]
+    m_left, c_left     = od["m_left"],   od["c_left"]
+    m_right, c_right   = od["m_right"],  od["c_right"]
+    x_intersect        = od["x_intersect"]
+    y_intersect        = od["y_intersect"]
+    x_inter_left       = od["x_inter_left"]
+    x_inter_right      = od["x_inter_right"]
 
     m_haleft,  c_haleft  = od["m_haleft"],  od["c_haleft"]
     m_haright, c_haright = od["m_haright"], od["c_haright"]
-    x_hal_intersect  = od["x_hal_intersect"]
-    y_hal_intersect  = od["y_hal_intersect"]
+    x_hal_intersect   = od["x_hal_intersect"]
+    y_hal_intersect   = od["y_hal_intersect"]
     x_intercept_left  = od["x_intercept_left"]
     x_intercept_right = od["x_intercept_right"]
 
     # ---- shared extrapolation domain ----
-    z_max_core = x_intersect * 1.2
-    x_extrap_core = np.linspace(0, z_max_core, 100)
+    z_max_core    = x_intersect * 1.2
+    x_extrap_core = np.linspace(0, z_max_core/12, 100)
     x_extrap_half = np.linspace(x_hal_intersect * 1.2, 100, 101)
 
     # ---- core scatter & fits ----
@@ -244,9 +244,9 @@ def plot_ray_analysis(
     pole              : (r_pole, z_pole)  virtual origin in (x/d, z/d) units.
                         Default: (0.0823, -109.964)
     n_rays            : rays per side – must be odd so the half-width ray is
-                        the centre ray of the fan.  Default: 5
+                        the centre ray of the fan.  Default: 3
     slope_half_spread : fractional spread of the fan around the half-width ray.
-                        E.g. 0.4 → factors [0.60, 0.80, 1.00, 1.20, 1.40].
+                        E.g. 0.4 → factors [0.60, 1.00, 1.40] for n_rays=3.
                         Default: 0.4
     vel_attr          : point attribute that holds the mean velocity.
                         Falls back to np.mean(point.voltage_data) if absent.
@@ -313,8 +313,7 @@ def plot_ray_analysis(
     #     through the pole, so  s = slope_hw  (the coefficient is identical
     #     in both pole-centred and origin-centred form).
     #
-    #     The fan factors spread symmetrically around 1.0, e.g.
-    #     [0.60, 0.80, 1.00, 1.20, 1.40] for spread=0.4, n=5.
+    #     The fan factors spread symmetrically around 1.0.
     # ------------------------------------------------------------------
     factors  = np.linspace(1.0 - slope_half_spread,
                            1.0 + slope_half_spread,
@@ -352,7 +351,7 @@ def plot_ray_analysis(
         return zs, us, u_norm
 
     # ------------------------------------------------------------------
-    # 5.  Plot
+    # 5.  Plot – 2×2 figure
     # ------------------------------------------------------------------
     fig, axes = plt.subplots(2, 2, figsize=(16, 12))
     fig.suptitle(
@@ -366,9 +365,8 @@ def plot_ray_analysis(
     ax3, ax4 = axes[1, 0], axes[1, 1]
 
     # Colour maps – warm reds for right, cool blues for left
-    # Brighter end = ray further from axis
-    c_right = cm.YlOrRd(np.linspace(0.35, 0.85, n_rays))
-    c_left  = cm.YlGnBu(np.linspace(0.35, 0.85, n_rays))
+    cmap_right = cm.YlOrRd(np.linspace(0.35, 0.85, n_rays))
+    cmap_left  = cm.YlGnBu(np.linspace(0.35, 0.85, n_rays))
 
     z_arr  = np.array(z_vals)
     uc_arr = np.array([uc[z] for z in z_vals])
@@ -386,14 +384,14 @@ def plot_ray_analysis(
         zs, us, _ = ray_data(slope)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax1.plot(zs, us, color=c_right[i], lw=lw, ls=ls,
+        ax1.plot(zs, us, color=cmap_right[i], lw=lw, ls=ls,
                  label=ray_label("R", i))
 
     for i, slope in enumerate(left_slopes):
         zs, us, _ = ray_data(slope)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax1.plot(zs, us, color=c_left[i], lw=lw, ls=ls,
+        ax1.plot(zs, us, color=cmap_left[i], lw=lw, ls=ls,
                  label=ray_label("L", i))
 
     ax1.set_xlabel("Axial distance  $z/d$")
@@ -418,24 +416,24 @@ def plot_ray_analysis(
         zs, _, u_norm = ray_data(slope)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax3.plot(zs, u_norm, color=c_right[i], lw=lw, ls=ls,
+        ax3.plot(zs, u_norm, color=cmap_right[i], lw=lw, ls=ls,
                  label=ray_label("R", i))
 
     for i, slope in enumerate(left_slopes):
         zs, _, u_norm = ray_data(slope)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax3.plot(zs, u_norm, color=c_left[i], lw=lw, ls=ls,
+        ax3.plot(zs, u_norm, color=cmap_left[i], lw=lw, ls=ls,
                  label=ray_label("L", i))
 
     ax3.set_xlabel("Axial distance  $z/d$")
     ax3.set_ylabel("$u \\ / \\ u_c$")
-    ax3.set_title("Normalised velocity  $u/u_c$")
+    
     ax3.legend(fontsize=7, ncol=2)
     ax3.grid(True, alpha=0.25)
 
     # ---- Subplot 4 : Ray Geometry in Physical Space ------------------
-    z_max = max(z_vals) if z_vals else 300
+    z_max    = max(z_vals) if z_vals else 300
     z_extrap = np.linspace(pole_z, z_max, 300)
 
     # Draw combined-graph data first (behind rays) when overlay supplied
@@ -448,14 +446,14 @@ def plot_ray_analysis(
         r_line = pole_r + slope * (z_extrap - pole_z)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax4.plot(r_line, z_extrap, color=c_right[i], lw=lw, ls=ls,
+        ax4.plot(r_line, z_extrap, color=cmap_right[i], lw=lw, ls=ls,
                  label=ray_label("R", i) if i == hw_idx else "")
 
     for i, slope in enumerate(left_slopes):
         r_line = pole_r + slope * (z_extrap - pole_z)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax4.plot(r_line, z_extrap, color=c_left[i], lw=lw, ls=ls,
+        ax4.plot(r_line, z_extrap, color=cmap_left[i], lw=lw, ls=ls,
                  label=ray_label("L", i) if i == hw_idx else "")
 
     ax4.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
@@ -465,7 +463,7 @@ def plot_ray_analysis(
     ax4.set_xlabel("Radial Distance / Halfwidth  $r$")
     ax4.set_ylabel("Axial distance  $z$")
     overlay_suffix = " + combined graph" if overlay_data is not None else ""
-    ax4.set_title(f"Ray Geometry Extrapolation{overlay_suffix}")
+    
 
     # Deduplicate legend entries
     handles, labels = ax4.get_legend_handles_labels()
@@ -482,85 +480,18 @@ def plot_ray_analysis(
 
     plt.show()
 
-    # ---- Subplot 3 : normalised velocity u / u_c ---------------------
-    plt.plot()
-    plt.axhline(0.5, color="grey", ls=":", lw=1.2,
-                label="$u/u_c = 0.5$  (half-width definition)")
-    plt.axhline(1.0, color="grey", ls=":", lw=0.8, alpha=0.5)
-
-    for i, slope in enumerate(right_slopes):
-        zs, _, u_norm = ray_data(slope)
-        lw = 2.2 if i == hw_idx else 1.2
-        ls = "-"  if i == hw_idx else "--"
-        plt.plot(zs, u_norm, color=c_right[i], lw=lw, ls=ls,
-                    label=ray_label("R", i))
-
-    for i, slope in enumerate(left_slopes):
-        zs, _, u_norm = ray_data(slope)
-        lw = 2.2 if i == hw_idx else 1.2
-        ls = "-"  if i == hw_idx else "--"
-        plt.plot(zs, u_norm, color=c_left[i], lw=lw, ls=ls,
-                    label=ray_label("L", i))
-
-    plt.xlabel("Axial distance  $z/d$")
-    plt.ylabel("$u \\ / \\ u_c$")
-    plt.title("Normalised velocity  $u/u_c$")
-    plt.legend(fontsize=7, ncol=2)
-    plt.grid(True, alpha=0.25)
-    plt.show()
-
-    plt.plot()
-    z_max = max(z_vals) if z_vals else 100
-    z_extrap = np.linspace(pole_z, z_max, 100)
-
-    # Draw combined-graph data first (behind rays) when overlay supplied
-    if overlay_data is not None:
-        _draw_combined_overlay(ax4, overlay_data)
-
-    plt.axvline(0, color="k", lw=1.5, label="Jet axis (r=0)")
-
-    for i, slope in enumerate(right_slopes):
-        r_line = pole_r + slope * (z_extrap - pole_z)
-        lw = 2.2 if i == hw_idx else 1.2
-        ls = "-"  if i == hw_idx else "--"
-        plt.plot(r_line, z_extrap, color=c_right[i], lw=lw, ls=ls,
-                 label=ray_label("R", i) if i == hw_idx else "")
-
-    for i, slope in enumerate(left_slopes):
-        r_line = pole_r + slope * (z_extrap - pole_z)
-        lw = 2.2 if i == hw_idx else 1.2
-        ls = "-"  if i == hw_idx else "--"
-        plt.plot(r_line, z_extrap, color=c_left[i], lw=lw, ls=ls,
-                 label=ray_label("L", i) if i == hw_idx else "")
-
-    plt.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
-             label="Estimated Pole Position")
-    plt.axhline(pole_z, color="grey", ls=":", alpha=0.7)
-
-    plt.xlabel("Radial Distance / Halfwidth  $r$")
-    plt.ylabel("Axial distance  $z$")
-    overlay_suffix = " + combined graph" if overlay_data is not None else ""
-    plt.title(f"Ray Geometry Extrapolation{overlay_suffix}")
-
-    # Deduplicate legend entries
-    handles, labels = ax4.get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    plt.legend(by_label.values(), by_label.keys(),
-               fontsize=6, ncol=2, loc="best")
-    plt.grid(True, alpha=0.25)
-    plt.show()
-
-    c_overlay = 5.0   # <-- adjust this constant to shift the curve up/down
+    # ------------------------------------------------------------------
+    # 6.  Standalone centreline-decay figure  (1/z overlay)
+    # ------------------------------------------------------------------
+    c_overlay = 5.0   # adjust to shift the curve up/down
 
     fig_uc, ax_uc = plt.subplots(figsize=(8, 5))
-
     ax_uc.plot(z_arr, uc_arr, "k-", lw=2.5, label="Centreline $u_c$")
 
-    # Only plot the overlay where z != 0 to avoid division by zero
     z_nonzero = z_arr[z_arr != 0]
-    overlay = (1.0 / z_nonzero) * c_overlay + 5
-    ax_uc.plot(z_nonzero, overlay, "r--", lw=1.8,
-            label=f"$c \\,/\\, z$  ($c = {c_overlay}$)")
+    uc_overlay = (1.0 / z_nonzero) * c_overlay + 5
+    ax_uc.plot(z_nonzero, uc_overlay, "r--", lw=1.8,
+               label=f"$c \\,/\\, z$  ($c = {c_overlay}$)")
 
     ax_uc.set_xlabel("Axial distance  $z/d$")
     ax_uc.set_ylabel("Centreline velocity  $u_c$")
@@ -575,19 +506,89 @@ def plot_ray_analysis(
         print(f"Centreline figure saved → {_uc_path}")
 
     plt.show()
+    fig_norm, ax_norm = plt.subplots(figsize=(9, 5))
+
+    ax_norm.axhline(1.0, color="grey", ls=":", lw=0.8, alpha=0.5)
+
+    for i, slope in enumerate(right_slopes):
+        zs, _, u_norm = ray_data(slope)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        ax_norm.plot(zs, u_norm, color=cmap_right[i], lw=lw, ls=ls,
+                     label=ray_label("Right", i))
+
+    for i, slope in enumerate(left_slopes):
+        zs, _, u_norm = ray_data(slope)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        ax_norm.plot(zs, u_norm, color=cmap_left[i], lw=lw, ls=ls,
+                     label=ray_label("Left", i))
+
+    ax_norm.set_xlabel("Axial distance  $l/d$")
+    ax_norm.set_ylabel("$u \\ / \\ u_c$")
+    
+    ax_norm.legend(fontsize=8, ncol=2)
+    ax_norm.set_xlim(left=4)
+    ax_norm.grid(True, alpha=0.25)
+    fig_norm.tight_layout()
+
+    if fig_path:
+        _norm_path = fig_path.replace(".png", "_normalised.png")
+        fig_norm.savefig(_norm_path, dpi=150, bbox_inches="tight")
+        print(f"Normalised velocity figure saved → {_norm_path}")
+
+    plt.show()
+
+    # ------------------------------------------------------------------
+    # 8.  Standalone figure – Ray Geometry
+    # ------------------------------------------------------------------
+    fig_geo, ax_geo = plt.subplots(figsize=(9, 7))
+
+    if overlay_data is not None:
+        _draw_combined_overlay(ax_geo, overlay_data)
+
+    ax_geo.axvline(0, color="k", lw=1.5, label="Jet axis (r=0)")
+
+    for i, slope in enumerate(right_slopes):
+        r_line = pole_r + slope * (z_extrap - pole_z)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        ax_geo.plot(r_line, z_extrap, color=cmap_right[i], lw=lw, ls=ls,
+                    label=ray_label("R", i) if i == hw_idx else "")
+
+    for i, slope in enumerate(left_slopes):
+        r_line = pole_r + slope * (z_extrap - pole_z)
+        lw = 2.2 if i == hw_idx else 1.2
+        ls = "-"  if i == hw_idx else "--"
+        ax_geo.plot(r_line, z_extrap, color=cmap_left[i], lw=lw, ls=ls,
+                    label=ray_label("L", i) if i == hw_idx else "")
+
+    ax_geo.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
+                label="Estimated Pole Position")
+    ax_geo.axhline(pole_z, color="grey", ls=":", alpha=0.7)
+
+    ax_geo.set_xlabel("Radial Distance / Halfwidth  $r$")
+    ax_geo.set_ylabel("Axial distance  $z$")
+    
+
+    handles, labels = ax_geo.get_legend_handles_labels()
+    by_label = dict(zip(labels, handles))
+    ax_geo.legend(by_label.values(), by_label.keys(),
+                  fontsize=7, ncol=2, loc="best")
+    ax_geo.grid(True, alpha=0.25)
+    fig_geo.tight_layout()
+
+    if fig_path:
+        _geo_path = fig_path.replace(".png", "_geometry.png")
+        fig_geo.savefig(_geo_path, dpi=150, bbox_inches="tight")
+        print(f"Ray geometry figure saved → {_geo_path}")
+
+    plt.show()
 
     return fig
-
-
-
-
 
 
 if __name__ == "__main__":
     cloud = PointCloud()
     cloud.read_test_data()
     plot_ray_analysis(cloud)
-
-
-
-
