@@ -364,7 +364,6 @@ class PointCloud:
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
                 ax.axhline(0, color = 'black', linewidth = 1)
-                ax.grid()
                 
         else:
             for i in idx: 

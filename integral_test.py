@@ -55,7 +55,7 @@ plt.plot([0,96], [1,1], label='Expected Shape Momentum Flux', color = "#008000",
 plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
 plt.title("Normalized Flux Integrals")
 plt.ylim((0,3.5))
-plt.xlim((0,100))
+plt.xlim((0,100)) 
 plt.xlabel("Axial Distance [mm]")
 plt.ylabel("Normalized Flux [-]")
 plt.annotate(f'Final mass flux value: {round(mass_flux_arr[-1],1)}', xy = (1,2.95), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
