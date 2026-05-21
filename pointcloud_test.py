@@ -176,8 +176,8 @@ plt.axhline(y=x_inter_left, color='blue', linestyle=':', label=f'Latest expected
 plt.axhline(y=x_inter_right, color='green', linestyle=':', label=f'Earliest expected collapse: l/d={x_inter_right:.2f}')
 plt.ylim(bottom=0)
 # 5. Swap the labels
-plt.xlabel("x/d")
-plt.ylabel("Axial Distance l/d")
+plt.xlabel("Radial distance r/d [-]")
+plt.ylabel("Axial Distance x/d [-]")
 
 plt.legend(fontsize='small')
 plt.show()
@@ -273,8 +273,8 @@ plt.axhline(y=x_intercept_right, color='green', linestyle=':', label=f'Latest es
 plt.axvline(x=0, color='black', linestyle='-')
 
 # Swap the labels
-plt.xlabel("x/d")
-plt.ylabel("Axial Distance, l/d")
+plt.xlabel("Radial distance r/d [-]")
+plt.ylabel("Axial Distance x/d [-]")
 
 plt.legend(loc='upper right', fontsize='small')
 plt.show()
@@ -363,8 +363,8 @@ ax.plot(x_plot, Uj_over_U0x, 'r-',
         )
 ax.axvline(x0, color='grey', ls='--', alpha=0.6,
            label=f"Virtual origin $x_0/d = {x0:.2f}$")
-ax.set_xlabel(r"Axial distance l/d")
-ax.set_ylabel(r"$U_J \,/\, U_0(x)$")
+ax.set_xlabel(r"Axial distance x/d [-]")
+ax.set_ylabel(r"$U_J \,/\, U_0(x) [-]$")
 
 ax.legend(); ax.grid(True, alpha=0.3)
 plt.tight_layout(); plt.show()
