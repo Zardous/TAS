@@ -524,9 +524,9 @@ def plot_ray_analysis(
         ax_norm.plot(zs, u_norm, color=cmap_left[i], lw=lw, ls=ls,
                      label=ray_label("Left", i))
 
-    ax_norm.set_xlabel("Axial distance  $l/d$")
-    ax_norm.set_ylabel("$u \\ / \\ u_c$")
-    
+    ax_norm.set_xlabel("Axial distance  $x/d [-]$")
+    ax_norm.set_ylabel("Normalized velocity  $u \\ / \\ u_c [-]$")
+
     ax_norm.legend(fontsize=8, ncol=2)
     ax_norm.set_xlim(left=4)
     ax_norm.grid(True, alpha=0.25)
@@ -567,8 +567,8 @@ def plot_ray_analysis(
                 label="Estimated Pole Position")
     ax_geo.axhline(pole_z, color="grey", ls=":", alpha=0.7)
 
-    ax_geo.set_xlabel("Radial Distance / Halfwidth  $r$")
-    ax_geo.set_ylabel("Axial distance  $z$")
+    ax_geo.set_xlabel(r"Normalized radial distance  $r/r_{1/2}$ [-]")
+    ax_geo.set_ylabel("Axial distance  $x$") #CHANGE THIS TO X OVER D
     
 
     handles, labels = ax_geo.get_legend_handles_labels()
