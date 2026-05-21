@@ -58,18 +58,18 @@ uc_smooth = inv_model(z_smooth, *popt)
 # --- Plot ---
 fig, ax = plt.subplots(figsize=(8, 5))
 
-ax.plot(z_arr, uc_arr, "k-o", lw=2, markersize=5, label="Centreline $u_c$")
-ax.plot(z_smooth, uc_smooth, "r--", lw=2,
-        label=f"Fit: $\\frac{{{a_fit:.2f}}}{{z - ({z0_fit:.2f})}} + {c_fit:.2f}$")
+ax.plot(z_arr, uc_arr, "k-o", lw=2, markersize=5, label="Centreline $U_0$")
+ax.plot(z_smooth, uc_smooth, "r--", lw=2, label="$1/x$ fit  (x ≥ 4)")
+        #label=f"Fit: $\\frac{{{a_fit:.2f}}}{{z - ({z0_fit:.2f})}} + {c_fit:.2f}$")
 
 # Mark the fitted region
-ax.axvline(4, color="grey", ls=":", lw=1, alpha=0.7, label="Fit start (z=4)")
+ax.axvline(4, color="grey", ls=":", lw=1, alpha=0.7, label="Fit start (x=4*d)")
 
 ax.set_xlim(left=z_arr[0], right=12)
 ax.set_ylim(bottom=0)
-ax.set_xlabel("Axial distance  $z/d$")
-ax.set_ylabel("Centreline velocity  $u_c$")
-ax.set_title("Centreline velocity with $1/z$ best-fit overlay")
+ax.set_xlabel("Axial distance  $x/d$")
+ax.set_ylabel("Centreline velocity  $U_0$")
+
 ax.legend()
 ax.grid(True, alpha=0.25)
 
