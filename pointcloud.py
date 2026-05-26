@@ -337,8 +337,8 @@ class PointCloud:
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(titles[attribute])
         ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
-        ax.set_xlabel('Radial distance [-]')
-        ax.set_xlim(-3,3)
+        ax.set_xlabel('Radial distance r/d [-]')
+        #ax.set_xlim(-3,3)
 
         if idx==None:
             for i in range(7):
@@ -370,8 +370,9 @@ class PointCloud:
             for i in idx: 
                 if attribute == 'velocity_mean':
                     _,_,_,_,_,_,_,r_half = self.find_halfwidth(np.array([p.velocity_mean for p in self.points[i]]),np.array([p.radial for p in self.points[i]]))
-                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.9,(13 - (i+1)*0.6)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
-                    ax.set_ylim(-0.5,13)
+                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.95,(11.65 - (i+1)*0.5)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
+                    ax.set_ylim(0,11.5)
+                    ax.set_xlim(-1,1)
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
@@ -384,7 +385,9 @@ class PointCloud:
                             x[j] = x_ss[j]/abs(x_r)
                     y_norm = np.max(y_ss)
                     y = y_ss/y_norm
-                    ax.set_xlim(-3.5,3.5)
+                    ax.set_xlim(-2.5,2.5)
+                    ax.set_ylim(0,1.15)
+                    ax.set_ylabel('$r/r_{1/2}$ [-]')
                 else:
                     x = np.array([p.radial for p in self.points[i]])
                     y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
@@ -392,17 +395,18 @@ class PointCloud:
                     ax.scatter(x, y, color=col[i], label = str(self.points[i][0].axial))
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
-                ax.axhline(0, color = 'black', linewidth = 1)
+                #ax.axhline(0, color = 'black', linewidth = 1)
+                
 
-        if attribute == 'velocity_norm':
-            mean = 0
-            o = 1
-            x = np.linspace(-3.5,3.5,200) 
-            y = 1/(o*np.sqrt(2*np.pi))*np.exp(-0.5*(x-mean)**2/o**2)
-            y = y * (1/max(y))
-            ax.plot(x,y,color = "#00FF00", label = "Gaussian")
-        else:
-            None
+        #if attribute == 'velocity_norm':
+        #    mean = 0
+        #    o = 1
+        #    x = np.linspace(-3.5,3.5,200) 
+        #    y = 1/(o*np.sqrt(2*np.pi))*np.exp(-0.5*(x-mean)**2/o**2)
+        #    y = y * (1/max(y))
+        #    ax.plot(x,y,color = "#00FF00", label = "Gaussian")
+        #else:
+        #    None
                 
         ax.grid()
         ax.legend()

@@ -43,7 +43,7 @@ mass_flux_arr /= mass_flux_arr[0]
 momentum_flux_arr /= momentum_flux_arr[0]
 energy_flux_arr /= energy_flux_arr[0]
 x = np.linspace(0,96,500)
-y = (1/(x+1.7))+0.42
+y = (1/(x+1.72))+0.42
 #y = (1/(x+1.45))+0.32
 
 plt.figure()
