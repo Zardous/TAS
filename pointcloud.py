@@ -338,7 +338,7 @@ class PointCloud:
         ax.set_title(titles[attribute])
         ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
         ax.set_xlabel('Radial distance [-]')
-
+        ax.set_xlim(-3,3)
 
         if idx==None:
             for i in range(7):
@@ -356,6 +356,7 @@ class PointCloud:
                     y_maxvals = y_ss[y_ss/y_max>0.99]
                     y_norm = np.average(y_maxvals)
                     y = y_ss/y_norm
+                    ax.set_xlim(-3.5,3.5)
                 else:
                     x = np.array([p.radial for p in self.points[i]])
                     y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
@@ -383,6 +384,7 @@ class PointCloud:
                             x[j] = x_ss[j]/abs(x_r)
                     y_norm = np.max(y_ss)
                     y = y_ss/y_norm
+                    ax.set_xlim(-3.5,3.5)
                 else:
                     x = np.array([p.radial for p in self.points[i]])
                     y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
@@ -391,6 +393,17 @@ class PointCloud:
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
                 ax.axhline(0, color = 'black', linewidth = 1)
+
+        if attribute == 'velocity_norm':
+            mean = 0
+            o = 1
+            x = np.linspace(-3.5,3.5,200) 
+            y = 1/(o*np.sqrt(2*np.pi))*np.exp(-0.5*(x-mean)**2/o**2)
+            y = y * (1/max(y))
+            ax.plot(x,y,color = "#00FF00", label = "Gaussian")
+        else:
+            None
+                
         ax.grid()
         ax.legend()
         return ax
