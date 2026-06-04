@@ -28,6 +28,11 @@ def draw(layer, i):
     ax3.clear()
     ax4.clear()
 
+    ax1.cla()
+    ax2.cla()
+    ax3.cla()
+    ax4.cla()
+
     tha_point = cloud.points[layer][i]
     corr_kl = cloud.pair_correlation(tha_point, tha_point, cloud.correlate_pair_by_convolution)
     ms = np.linspace(0, 5_000, corr_kl.size)
@@ -39,7 +44,7 @@ def draw(layer, i):
     ax1.set_xlim(0, 20)
 
     corr_kl, _, _ = cloud.full_cross_correlation(layer, i, cloud.correlate_by_kl_divergence)
-    ax2_5 = cloud.plot_2Dcontour_from_array(corr_kl, ax2, transparency=1)
+    ax2_5 = cloud.plot_2Dcontour_from_array(corr_kl, ax2, transparency=0.5)
 
     all_radials = []
     all_axials = []
@@ -66,7 +71,7 @@ def draw(layer, i):
     color_map = {"Potential Core": "orange", "Jet Half Width": "purple"}
 
     # Plot all lines
-    
+    zord = 300
     for a, b, category in lines:
         x_vals = np.array(ax3.get_xlim())
         if abs(a) <= 100:
@@ -77,8 +82,9 @@ def draw(layer, i):
         else:
             x_vals = x_vals
         y_vals = (a * x_vals + b) / 12
+        zord += 1
 
-        ax2.plot(x_vals, y_vals, color=color_map[category], linestyle="--", linewidth=2)
+        ax2.plot(x_vals, y_vals, color=color_map[category], linestyle="--", linewidth=2, zorder=zord)
         
     nucleus_line = mlines.Line2D([], [], color="orange", linestyle="--", label="Potential Core")
     pole_line = mlines.Line2D([], [], color="purple", linestyle="--", label="Jet Half Width")

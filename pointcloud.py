@@ -482,6 +482,7 @@ class PointCloud:
         return ax
 
     def plot_2Dcontour_from_array(self, array, ax: axes._axes.Axes, levels=50, transparency=0.5):
+        ax.cla()
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
