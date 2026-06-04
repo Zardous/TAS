@@ -138,8 +138,8 @@ class PointCloud:
         over_half = np.where(vel/max>=0.05)
         right_up_e = over_half[0][-1]
         left_up_e = over_half[0][0]
-        right_down_e = right_up_e+1
-        left_down_e = left_up_e-1
+        right_down_e = right_up_e
+        left_down_e = left_up_e
         right_pos_e = (pos[right_down_e]+pos[right_up_e])/2
         left_pos_e = (pos[left_down_e]+pos[left_up_e])/2
         indice_over_half = np.where(vel/max<0.055)
@@ -512,6 +512,6 @@ class PointCloud:
         v2m = v2 - v2.mean()
         v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
         r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
-        return r/(np.cumsum(v1m**2)[::-1])
+        return r/(np.cumsum(v1m*v2m)[::-1])
 
     
