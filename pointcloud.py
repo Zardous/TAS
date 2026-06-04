@@ -510,7 +510,7 @@ class PointCloud:
         # Fancy interpolated fill:
         # cf2 = ax.tricontourf(triang_refined, z_refined, levels=500, cmap='viridis', alpha=transparency, vmin=0, vmax=z.max())
 
-        return cf2
+        return ax
 
     def correlate_by_kl_divergence(self, main_point: point, arr, ref_arr,  *args, **kwargs):
         main_bins = main_point.bin_fraction_arr[None, :]
@@ -556,6 +556,6 @@ class PointCloud:
         v2m = v2 - v2.mean()
         v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
         r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
-        return r/(np.cumsum(v1m**2)[::-1])
+        return r/(np.cumsum(v1m*v2m)[::-1])
 
     
