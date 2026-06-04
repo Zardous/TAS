@@ -41,12 +41,7 @@ def draw(layer, i):
     #ax2_5.set_xlabel("Radial distance r/d [-]")
     #ax2_5.set_ylabel("Axial distance x/d [-]")
     #ax2_5.set_xlim(-1.5, 1.5)
-    #cbar = fig.colorbar(contour, ax=ax2, pad=0.02)
-    #cbar.set_label("Correlation Strength")
-    vmin = contour.norm.vmin
-    vmax = contour.norm.vmax
-    #cbar.set_ticks([vmin, 0.25*vmax, 0.5*vmax, 0.75*vmax, vmax])
-    #cbar.set_ticklabels([f"{vmin:.2f} (Strong)","6.08","12.16","18.23",f"{vmax:.2f} (Weak)"])
+    
 
     all_radials = []
     all_axials = []
