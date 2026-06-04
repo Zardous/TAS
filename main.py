@@ -15,15 +15,19 @@ cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax3)
 cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax4)
 """
 
-fig, (ax1, ax2) = plt.subplots(1, 2)
-cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax1)
-cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax2)
-ax2.set_ylim(0)
-fig.tight_layout()
+#fig, (ax1, ax2) = plt.subplots(1, 2)
+#cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax1)
+#cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax2)
+#ax2.set_ylim(0)
+#fig.tight_layout()
 
-fig, ((ax1,ax2)) = plt.subplots(1, 2)
-cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
-cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
+#fig, ((ax1,ax2)) = plt.subplots(1, 2)
+#cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
+#cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
+
+
+fig, (ax1) = plt.subplots(1, 1)
+cloud.plot_3Dsurface_from_attr_name('velocity_mean', ax1)
 
 
 #cloud.plot_2D('velocity_mean', [0], ax4, True)

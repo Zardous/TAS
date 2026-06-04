@@ -424,9 +424,8 @@ class PointCloud:
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',}
         
-        ax.set_title(attribute)
-        ax.set_ylabel(suffixes[attribute])
-        ax.set_xlabel('x/d')
+        ax.set_ylabel("Axial distance x/d [-]")
+        ax.set_xlabel('Radial distance r/d [-]')
 
         x = np.array([p.radial for lst in self.points for p in lst])
         y = np.array([p.axial for lst in self.points for p in lst])
