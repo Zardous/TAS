@@ -557,6 +557,6 @@ class PointCloud:
         v2m = v2 - v2.mean()
         v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
         r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
-        return r/(np.cumsum(v1m**2)[::-1])
+        return r/(np.cumsum(v1m*v2m)[::-1])
 
     
