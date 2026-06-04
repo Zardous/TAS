@@ -318,7 +318,7 @@ class point:
         ax.set_ylim(-8, 5)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
-        ax.set_ylabel(r'$\alpha$ ($E \propto k^{\alpha}$), [-]')
+        ax.set_ylabel(r'$\alpha$ [-]')
 
         ax.legend()
         plt.show()
