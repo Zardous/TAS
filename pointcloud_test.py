@@ -12,7 +12,7 @@ for i in range(len(pointcloud_testdata.points)):
 #pointcloud_testdata.shift_velocities()
 iteration_num = 0
 n = len(pointcloud_testdata.points)
-axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
+axial_dist = np.array([0, 0.5, 1, 2, 4, 7, 8])
 halfwidths = np.zeros(n)
 midpoints = np.zeros(n)
 max_velocities = np.zeros(n)
@@ -102,7 +102,7 @@ for j in range(len(pointcloud_testdata.points)):
 plt.title("Mean Velocity")
 plt.show()
 '''
-
+'''
 for j in range(len(left_core)):
     plt.scatter(axial_dist[j], left_core[j])
     plt.scatter(axial_dist[j], right_core[j])
@@ -118,7 +118,7 @@ plt.title("Halfwidth vs axial distance")
 plt.xlabel("Axial distance")
 plt.ylabel("Halfwidth")
 plt.show()
-
+'''
 valid_idx = ~np.isnan(left_core) & ~np.isnan(right_core)
 
 x_clean, y_leftcore_clean, y_rightcore_clean = axial_dist[valid_idx], left_core[valid_idx], right_core[valid_idx]
@@ -164,22 +164,20 @@ plt.scatter(left_core, axial_dist)
 plt.scatter(right_core, axial_dist)
 
 # 2. Swap the x and y variables in line plots
-plt.plot(y_left_line, x_extrapolate, color='gray', linestyle='--', label='Left Core Extrapolation')
-plt.plot(y_right_line, x_extrapolate, color='orange', linestyle='--', label='Right Core Extrapolation')
+plt.plot(y_left_line, x_extrapolate, color='gray', linestyle='--', label='Left Edge Extrapolation')
+plt.plot(y_right_line, x_extrapolate, color='orange', linestyle='--', label='Right Edge Extrapolation')
 
 # 3. Swap the intersection point coordinates
 plt.scatter(y_intersect, x_intersect, color='red', label='Estimated Core Collapse Point')
 
 # 4. Change axvline (vertical) to axhline (horizontal) for the new Y-axis
-plt.axhline(y=0, color='gray', linestyle='--', label='Jet Outlet')
-plt.axhline(y=x_inter_left, color='blue', linestyle=':', label=f'Leftmost pole position: y={x_inter_left:.2f}')
-plt.axhline(y=x_inter_right, color='green', linestyle=':', label=f'Rightmost pole position: y={x_inter_right:.2f}')
-
-plt.title("Potential Core Radius Extrapolation")
-
+plt.axvline(x=0, color='lightgray', linestyle='--')
+plt.axhline(y=x_inter_left, color='blue', linestyle=':', label=f'Latest expected collapse: l/d={x_inter_left:.2f}')
+plt.axhline(y=x_inter_right, color='green', linestyle=':', label=f'Earliest expected collapse: l/d={x_inter_right:.2f}')
+plt.ylim(bottom=0)
 # 5. Swap the labels
-plt.xlabel("Potential Core Radius")
-plt.ylabel("Axial Distance")
+plt.xlabel("Radial distance r/d [-]")
+plt.ylabel("Axial Distance x/d [-]")
 
 plt.legend(fontsize='small')
 plt.show()
@@ -202,7 +200,7 @@ y_hal_intersect = m_haleft * x_hal_intersect + c_haleft
 x_intercept_left = -c_haleft / m_haleft
 x_intercept_right = -c_haright / m_haright
 
-x_extrapolate_half = np.linspace(x_hal_intersect*1.2, 100, 101)
+x_extrapolate_half = np.linspace(x_hal_intersect*1.2, 18, 101)
 
 x_poleposition = np.linspace(x_intercept_right, x_intercept_left, 101)
 
@@ -254,6 +252,7 @@ plt.axvline(x=0, color='gray', linestyle='--', label='Jet Outlet')
 plt.legend(loc='upper left', fontsize='small')
 plt.show()
 '''
+
 plt.figure(figsize=(6, 10)) # Taller figure size
 
 # Swap x and y in scatters
@@ -265,18 +264,17 @@ plt.scatter(y_hal_intersect, x_hal_intersect, color='red', label='Estimated Pole
 plt.plot(y_haleft_line, x_extrapolate_half, color='gray', linestyle='--', label='Left Halfwidth Extrapolation')
 plt.plot(y_haright_line, x_extrapolate_half, color='orange', linestyle='--', label='Right Halfwidth Extrapolation')
 
+plt.axhline(y=0, color='lightgrey', linestyle='--')
 # axvline becomes axhline (and update the label string to y=)
-plt.axhline(y=x_intercept_left, color='blue', linestyle=':', label=f'Leftmost pole position: y={x_intercept_left:.2f}')
-plt.axhline(y=x_intercept_right, color='green', linestyle=':', label=f'Rightmost pole position: y={x_intercept_right:.2f}')
+plt.axhline(y=x_intercept_left, color='blue', linestyle=':', label=f'Earliest espected pole: l/d ={x_intercept_left:.2f}')
+plt.axhline(y=x_intercept_right, color='green', linestyle=':', label=f'Latest espected pole: l/d ={x_intercept_right:.2f}')
 
 # The original axhline at y=0 was the centerline, so it becomes a vertical line at x=0
 plt.axvline(x=0, color='black', linestyle='-')
 
-plt.title("Halfwidth Extrapolation")
-
 # Swap the labels
-plt.xlabel("Halfwidth")
-plt.ylabel("Axial Distance")
+plt.xlabel("Radial distance r/d [-]")
+plt.ylabel("Axial Distance x/d [-]")
 
 plt.legend(loc='upper right', fontsize='small')
 plt.show()
@@ -320,3 +318,53 @@ plt.ylabel("Axial Distance")
 
 plt.legend(loc='lower left', fontsize='small')
 plt.show()
+
+from velocity_ray import build_overlay_data, plot_ray_analysis
+
+overlay = build_overlay_data(
+    axial_dist=axial_dist,
+    left_core=left_core,         right_core=right_core,
+    left_halfwidths=left_halfwidths, right_halfwidths=right_halfwidths,
+    m_left=m_left,   c_left=c_left,
+    m_right=m_right, c_right=c_right,
+    x_intersect=x_intersect,   y_intersect=y_intersect,
+    x_inter_left=x_inter_left, x_inter_right=x_inter_right,
+    m_haleft=m_haleft,   c_haleft=c_haleft,
+    m_haright=m_haright, c_haright=c_haright,
+    x_hal_intersect=x_hal_intersect, y_hal_intersect=y_hal_intersect,
+    x_intercept_left=x_intercept_left, x_intercept_right=x_intercept_right,
+)
+
+cloud = PointCloud()
+cloud.read_test_data()
+plot_ray_analysis(cloud, overlay_data=overlay)   # with overlay
+plot_ray_analysis(cloud) 
+
+
+# Use ALL stations beyond the potential core, not a hardcoded [4:7]
+points = cloud._polefromtheory()          # Uj/U0x for every station
+x_fit  = np.array(axial_dist[4:7])
+y_fit = points
+
+m_, c_ = np.polyfit(x_fit, y_fit, 1)
+
+x0 = -c_ / m_          # virtual origin  [x/d]
+B         =  1.0 / m_         # empirical constant (if x already in x/d)
+
+x_plot      = np.linspace(x0, x_fit * 1.05, 200)
+Uj_over_U0x = m_ * x_plot + c_
+
+print(f"Virtual origin  x0/d = {x0:.3f}")
+print(f"Empirical const B    = {B:.3f}")
+
+fig, ax = plt.subplots()
+ax.scatter(x_fit, y_fit, label=r"Measured $U_J/U_0(x)$", zorder=3)
+ax.plot(x_plot, Uj_over_U0x, 'r-',
+        )
+ax.axvline(x0, color='grey', ls='--', alpha=0.6,
+           label=f"Virtual origin $x_0/d = {x0:.2f}$")
+ax.set_xlabel(r"Axial distance x/d [-]")
+ax.set_ylabel(r"$U_J \,/\, U_0(x) [-]$")
+
+ax.legend(); ax.grid(True, alpha=0.3)
+plt.tight_layout(); plt.show()
