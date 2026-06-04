@@ -67,8 +67,8 @@ ax.axvline(4, color="grey", ls=":", lw=1, alpha=0.7, label="Fit start (x=4*d)")
 
 ax.set_xlim(left=z_arr[0], right=12)
 ax.set_ylim(bottom=0)
-ax.set_xlabel("Axial distance  $x/d$")
-ax.set_ylabel("Centreline velocity  $U_0$")
+ax.set_xlabel("Axial distance $x/d$ [-]")
+ax.set_ylabel("Centreline velocity $U_0$ [m/s]")
 
 ax.legend()
 ax.grid(True, alpha=0.25)
