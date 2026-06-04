@@ -76,7 +76,7 @@ def draw(layer, i):
     ax3.set_ylim(-5, 2)
     ax3.set_xlim(0, 4000)
     ax4.grid(True)
-    ax4.set_ylim(1*e**(-7), 0.1)
+    ax4.set_ylim(1e-7, 0.1)
     ax4.set_xlim(0, 7000)
 
 

@@ -272,53 +272,62 @@ class point:
         if ax==None:
             fig, ax = plt.subplots()
 
+        # Hyperparameters
         segment_length = 2000
         fmax = 7_800
+
+        # Calculate PSD
         freq, Ef = welch(x=self.velocity_arr, fs=1e5/5, window='hann', nperseg=segment_length, scaling='density') # units: Hz, (m/s)² / Hz
 
+        # Convert to wavenumber domain
         k: np.ndarray  = 2 * np.pi * freq / self.velocity_mean # [rad/m]
         Ek: np.ndarray = Ef * (self.velocity_mean / (2 * np.pi)) # [ (m/s)² / (rad/m) ]
 
+        # Cut data at 7800Hz
         k[freq>fmax] = np.nan
         Ek[freq>fmax] = np.nan
 
+        # Define kernels
         N = 100
         k_avg_kernel = np.ones((N,))/N
 
-        resample_smoother = np.ones((20,))/20
+        smoothing_kernel = np.ones((20,))/20
 
         diff_kernel = np.zeros((N,))
         diff_kernel[-1] = 1
         diff_kernel[0] = -1
 
-        if True:
-            log_Ek = np.log10(Ek+1e-12)
-            log_k = np.log10(k+1e-12)
+        # Convert to log space
+        log_Ek = np.log10(Ek+1e-12)
+        log_k = np.log10(k+1e-12)
 
-            log_k_resample = np.linspace(0, np.max(log_k[np.isfinite(log_k)]), 1000)
-            f = interp1d(log_k, log_Ek, kind='linear')
-            log_Ek_resample = f(log_k_resample)
+        # Resample log(k) and log(E(k))
+        log_k_resampled = np.linspace(0, np.max(log_k[np.isfinite(log_k)]), 1000)
+        interp_func = interp1d(log_k, log_Ek, kind='linear')
+        log_Ek_resampled = interp_func(log_k_resampled)
 
-            first: np.ndarray = log_Ek_resample[0]
-            last: np.ndarray = log_Ek_resample[-1]
-            rs_size = resample_smoother.size
-            log_Ek_resample = convolve(np.concat([first.repeat(rs_size), log_Ek_resample, last.repeat(rs_size)]), resample_smoother, mode='same')[rs_size:-rs_size]
+        # Smooth E(k) in-place with constant padding
+        first: np.ndarray = log_Ek_resampled[0]
+        last: np.ndarray = log_Ek_resampled[-1]
+        smoothing_kernel_size = smoothing_kernel.size
+        log_Ek_resampled = convolve(np.concat([first.repeat(smoothing_kernel_size), log_Ek_resampled, last.repeat(smoothing_kernel_size)]), smoothing_kernel, mode='same')[smoothing_kernel_size:-smoothing_kernel_size]
 
-        dlog_Ek= convolve(log_Ek_resample, diff_kernel[::-1], mode='valid')
-        dlog_k= convolve(log_k_resample, diff_kernel[::-1], mode='valid')
-        power = dlog_Ek/dlog_k
+        # Calculate alpha
+        dlog_Ek= convolve(log_Ek_resampled, diff_kernel[::-1], mode='valid')
+        dlog_k= convolve(log_k_resampled, diff_kernel[::-1], mode='valid')
+        alpha = dlog_Ek/dlog_k
 
-        k_new_conv = convolve(log_k_resample, k_avg_kernel, mode='valid')
+        # Calculate wavenumber corresponding to the alpha values
+        k_new_averaged = convolve(log_k_resampled, k_avg_kernel, mode='valid')
 
-        # ax.scatter(10**log_k_resample, log_Ek_resample, label='PSD', s=0.1)
-        ax.plot(10**k_new_conv, power, label=r'$\alpha$', color='red')
+        ax.plot(10**k_new_averaged, alpha, label=r'$\alpha$', color='red')
         ax.hlines(-5/3, 10**1, 10**5, label='-5/3', color='black', linestyles='--')
         ax.set_xscale('log')
         ax.set_xlim(10**1, 10**5)
         ax.set_ylim(-8, 5)
 
         ax.set_xlabel(r'Wavenumber $k$ [rad/m]')
-        ax.set_ylabel(r'$\alpha$ [-]')
+        ax.set_ylabel(r'$\alpha$, [-]')
 
         ax.legend()
         plt.show()
