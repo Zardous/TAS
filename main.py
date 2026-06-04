@@ -6,17 +6,19 @@ import matplotlib.lines as mlines
 cloud = PointCloud()
 cloud.read_test_data()
 
-
+"""
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
 cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
 cloud.plot_2Dgraph_from_attr_name('velocity_turb_int', None, ax2)
 cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax3)
 cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax4)
+"""
 
 fig, ((ax1,ax2)) = plt.subplots(1, 2)
 cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
 cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
+
 
 #cloud.plot_2D('velocity_mean', [0], ax4, True)
 #ax4 = cloud.plot_surface_attr('velocity_mean', ax4)
@@ -30,7 +32,7 @@ fig.show()
 #    cloud.points[axial_layer][i].plot_distribution(ax,40)
 #    fig.savefig(f'figure_[{axial_layer}][{i}].png')
 #    plt.close(fig)
-
+"""
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
 
 cloud.points[4][3].plot_distribution(ax1, 40)
@@ -132,7 +134,7 @@ fig.canvas.mpl_connect("key_press_event", on_key)
 
 draw(current_layer, current_index)
 plt.show()
-
+"""
 
 """
 def on_key(event):
