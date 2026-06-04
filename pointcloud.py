@@ -480,6 +480,7 @@ class PointCloud:
         return ax
 
     def plot_2Dcontour_from_array(self, array, ax: axes._axes.Axes, levels=50, transparency=0.5):
+        ax.cla()
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
@@ -502,9 +503,15 @@ class PointCloud:
 
         # Contours:
         #cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
-
+        fig = ax.get_figure()
         # Basic colour fill:
         cf2 = ax.tricontourf(triang, z.flatten(), levels=levels, cmap='viridis', alpha = transparency, vmin=0, vmax=z.max())
+        cbar = fig.colorbar(cf2, ax=ax, pad=0.02)
+        cbar.set_label("Correlation Strength")
+        vmin = cf2.norm.vmin
+        vmax = cf2.norm.vmax
+        cbar.set_ticks([vmin, 0.25*vmax, 0.5*vmax, 0.75*vmax, vmax])
+        cbar.set_ticklabels([f"{vmin:.2f} (Strong)","6.08","12.16","18.23",f"{vmax:.2f} (Weak)"])
 
         # Fancy interpolated fill:
         # cf2 = ax.tricontourf(triang_refined, z_refined, levels=500, cmap='viridis', alpha=transparency, vmin=0, vmax=z.max())
