@@ -553,23 +553,23 @@ def plot_ray_analysis(
         r_line = pole_r + slope * (z_extrap - pole_z)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax_geo.plot(r_line, z_extrap, color=cmap_right[i], lw=lw, ls=ls,
+        ax_geo.plot(r_line, z_extrap/12, color=cmap_right[i], lw=lw, ls=ls,
                     label=ray_label("R", i) if i == hw_idx else "")
 
     for i, slope in enumerate(left_slopes):
         r_line = pole_r + slope * (z_extrap - pole_z)
         lw = 2.2 if i == hw_idx else 1.2
         ls = "-"  if i == hw_idx else "--"
-        ax_geo.plot(r_line, z_extrap, color=cmap_left[i], lw=lw, ls=ls,
+        ax_geo.plot(r_line, z_extrap/12, color=cmap_left[i], lw=lw, ls=ls,
                     label=ray_label("L", i) if i == hw_idx else "")
 
-    ax_geo.plot(pole_r, pole_z, 'ro', markersize=8, zorder=6,
+    ax_geo.plot(pole_r, pole_z/12, 'ro', markersize=8, zorder=6,
                 label="Estimated Pole Position")
-    ax_geo.axhline(pole_z, color="grey", ls=":", alpha=0.7)
+    ax_geo.axhline(pole_z/12, color="grey", ls=":", alpha=0.7)
 
     ax_geo.set_xlabel(r"Normalized radial distance  $r/r_{1/2}$ [-]")
-    ax_geo.set_ylabel("Axial distance  $x$") #CHANGE THIS TO X OVER D
-    
+    ax_geo.set_ylabel(r"Axial distance  $x/d$ [-]") #CHANGE THIS TO X OVER D---done
+         
 
     handles, labels = ax_geo.get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
