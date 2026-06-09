@@ -20,7 +20,7 @@ momentum_flux_arr = np.zeros(n)
 energy_flux_arr = np.zeros(n)
 xi_s = []
 f_s = []
-axial_dist = np.array([0, 6, 12, 24, 48, 84, 96])
+axial_dist = np.array([0, 0.5, 1, 2, 4, 7, 8])
 
 
 for i in range(n):
@@ -42,25 +42,26 @@ for i in range(n):
 mass_flux_arr /= mass_flux_arr[0]
 momentum_flux_arr /= momentum_flux_arr[0]
 energy_flux_arr /= energy_flux_arr[0]
-x = np.linspace(0,96,500)
-y = (1/(x+1.7))+0.42
+x = np.linspace(0,8,250)
+#y = (1/(x+1.72))+0.42
 #y = (1/(x+1.45))+0.32
+y = (1/(x+1.5))+0.33
 
 plt.figure()
 plt.plot(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
 plt.plot(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
 plt.plot(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')
-plt.plot([0,96], [1,mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
-plt.plot([0,96], [1,1], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
+plt.plot([0,8], [1,mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
+plt.plot([0,8], [1,1], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
 plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
-plt.title("Normalized Flux Integrals")
+#plt.title("Normalized Flux Integrals")
 plt.ylim((0,3.5))
-plt.xlim((0,100)) 
-plt.xlabel("Axial Distance [mm]")
+plt.xlim((0,9)) 
+plt.xlabel("Axial Distance x/d [-]")
 plt.ylabel("Normalized Flux [-]")
-plt.annotate(f'Final mass flux value: {round(mass_flux_arr[-1],1)}', xy = (1,2.95), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
-plt.annotate(f'Final momentum flux value: {round(momentum_flux_arr[-1],2)}', xy = (1,2.7), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
-plt.annotate(f'Final energy flux value: {round(energy_flux_arr[-1],2)}', xy = (1, 2.45), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
+plt.annotate(f'Final mass flux value: {round(mass_flux_arr[-1],1)}', xy = (0.1,3.3), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
+plt.annotate(f'Final momentum flux value: {round(momentum_flux_arr[-1],2)}', xy = (0.1,3.05), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
+plt.annotate(f'Final energy flux value: {round(energy_flux_arr[-1],2)}', xy = (0.1, 2.8), fontsize = 16, bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.4"))
 plt.legend()
 plt.grid(True)
 

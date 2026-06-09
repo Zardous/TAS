@@ -6,29 +6,23 @@ import matplotlib.lines as mlines
 cloud = PointCloud()
 cloud.read_test_data()
 
-"""
+
 fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 
 cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
 cloud.plot_2Dgraph_from_attr_name('velocity_turb_int', None, ax2)
 cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax3)
 cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax4)
-"""
 
-#fig, (ax1, ax2) = plt.subplots(1, 2)
-#cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax1)
-#cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax2)
-#ax2.set_ylim(0)
-#fig.tight_layout()
+fig, (ax1, ax2) = plt.subplots(1, 2)
+cloud.plot_2Dgraph_from_attr_name('velocity_skewness', None, ax1)
+cloud.plot_2Dgraph_from_attr_name('velocity_kurtosis', None, ax2)
+ax2.set_ylim(0)
+fig.tight_layout()
 
-#fig, ((ax1,ax2)) = plt.subplots(1, 2)
-#cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
-#cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
-
-
-fig, (ax1) = plt.subplots(1, 1)
-cloud.plot_3Dsurface_from_attr_name('velocity_mean', ax1)
-
+fig, ((ax1,ax2)) = plt.subplots(1, 2)
+cloud.plot_2Dgraph_from_attr_name('velocity_mean', None, ax1)
+cloud.plot_2Dgraph_from_attr_name('velocity_norm', None, ax2)
 
 #cloud.plot_2D('velocity_mean', [0], ax4, True)
 #ax4 = cloud.plot_surface_attr('velocity_mean', ax4)
@@ -42,13 +36,13 @@ fig.show()
 #    cloud.points[axial_layer][i].plot_distribution(ax,40)
 #    fig.savefig(f'figure_[{axial_layer}][{i}].png')
 #    plt.close(fig)
-"""
+
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 6))
 
 cloud.points[4][3].plot_distribution(ax1, 40)
 
-current_index = 0
-current_layer = 0
+current_index = 10
+current_layer = 4
 
 def draw(layer, i):
     ax1.clear()
@@ -56,7 +50,9 @@ def draw(layer, i):
 
     cloud.points[layer][i].plot_distribution(ax1, 40)
 
-    ax3 = cloud.plot_2Dcontour_from_attr_name('velocity_mean', ax2)
+    corr_kl, _, _ = cloud.full_cross_correlation(layer, i, cloud.correlate_by_kl_divergence)
+    # ax3 = cloud.plot_2Dcontour_from_attr_name('velocity_mean', ax2)
+    ax3 = cloud.plot_2Dcontour_from_array(corr_kl, ax2)
     
     all_radials = []
     all_axials = []
@@ -144,7 +140,7 @@ fig.canvas.mpl_connect("key_press_event", on_key)
 
 draw(current_layer, current_index)
 plt.show()
-"""
+
 
 """
 def on_key(event):

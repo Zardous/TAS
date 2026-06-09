@@ -337,8 +337,8 @@ class PointCloud:
         col = ['#AA0000', '#FF0000', '#FF0078', '#FF00FF', '#7800FF', '#0000FF', '#0000AA']
         ax.set_title(titles[attribute])
         ax.set_ylabel(f'{titles[attribute]} [{suffixes[attribute]}]')
-        ax.set_xlabel('Radial distance [-]')
-
+        ax.set_xlabel('Radial distance r/d [-]')
+        #ax.set_xlim(-3,3)
 
         if idx==None:
             for i in range(7):
@@ -356,6 +356,8 @@ class PointCloud:
                     y_maxvals = y_ss[y_ss/y_max>0.99]
                     y_norm = np.average(y_maxvals)
                     y = y_ss/y_norm
+                    ax.set_xlim(-3.5,3.5)
+                    ax.set_xlabel('Normalized radial distance $r/r_{1/2}$ [-]')
                 else:
                     x = np.array([p.radial for p in self.points[i]])
                     y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
@@ -369,8 +371,9 @@ class PointCloud:
             for i in idx: 
                 if attribute == 'velocity_mean':
                     _,_,_,_,_,_,_,r_half = self.find_halfwidth(np.array([p.velocity_mean for p in self.points[i]]),np.array([p.radial for p in self.points[i]]))
-                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.9,(13 - (i+1)*0.6)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
-                    ax.set_ylim(-0.5,13)
+                    ax.annotate(f"Jet halfwidth at {self.points[i][0].axial} = {round(r_half,3)}", xy = (-0.95,(11.65 - (i+1)*0.5)), bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"))
+                    ax.set_ylim(0,11.5)
+                    ax.set_xlim(-1,1)
                 if attribute == 'velocity_norm':
                     x_ss = np.array([p.radial for p in self.points[i]])
                     y_ss = np.array([p.velocity_mean for p in self.points[i]])
@@ -383,6 +386,9 @@ class PointCloud:
                             x[j] = x_ss[j]/abs(x_r)
                     y_norm = np.max(y_ss)
                     y = y_ss/y_norm
+                    ax.set_xlim(-2.5,2.5)
+                    ax.set_ylim(0,1.15)
+                    ax.set_xlabel('Normalized radial distance $r/r_{1/2}$ [-]')
                 else:
                     x = np.array([p.radial for p in self.points[i]])
                     y = np.array([p.__getattribute__(attribute) for p in self.points[i]])
@@ -390,7 +396,17 @@ class PointCloud:
                     ax.scatter(x, y, color=col[i], label = str(self.points[i][0].axial))
                 else:
                     ax.plot(x, y, color=col[i], label = str(self.points[i][0].axial))
-                ax.axhline(0, color = 'black', linewidth = 1)
+                #ax.axhline(0, color = 'black', linewidth = 1)
+                
+
+        if attribute == 'velocity_norm':
+            mean = 0
+            o = 1
+            x = np.linspace(-3.5,3.5,200) 
+            y = 1/(o*np.sqrt(2*np.pi))*np.exp(-0.5*(x-mean)**2/o**2)
+            y = y * (1/max(y))
+            ax.plot(x,y,color = "#00FF00", label = "Gaussian")
+                
         ax.grid()
         ax.legend()
         return ax
@@ -408,9 +424,8 @@ class PointCloud:
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',}
         
-        ax.set_title(attribute)
-        ax.set_ylabel(suffixes[attribute])
-        ax.set_xlabel('x/d')
+        ax.set_ylabel("Axial distance x/d [-]")
+        ax.set_xlabel('Radial distance r/d [-]')
 
         x = np.array([p.radial for lst in self.points for p in lst])
         y = np.array([p.axial for lst in self.points for p in lst])
@@ -465,6 +480,7 @@ class PointCloud:
         return ax
 
     def plot_2Dcontour_from_array(self, array, ax: axes._axes.Axes, levels=50, transparency=0.5):
+        ax.cla()
         suffixes = {'velocity_mean': 'm/s',
                     'velocity_skewness': '-',
                     'velocity_kurtosis': '-',
@@ -487,9 +503,15 @@ class PointCloud:
 
         # Contours:
         #cont = ax.tricontour(triang, z.flatten(), levels=[0.2*highest, 0.4*highest, 0.6*highest, 0.8*highest, 0.97*highest], colors="#000000FF", alpha = 0.8)
-
+        fig = ax.get_figure()
         # Basic colour fill:
         cf2 = ax.tricontourf(triang, z.flatten(), levels=levels, cmap='viridis', alpha = transparency, vmin=0, vmax=z.max())
+        cbar = fig.colorbar(cf2, ax=ax, pad=0.02)
+        cbar.set_label("Correlation Strength")
+        vmin = cf2.norm.vmin
+        vmax = cf2.norm.vmax
+        cbar.set_ticks([vmin, 0.25*vmax, 0.5*vmax, 0.75*vmax, vmax])
+        cbar.set_ticklabels([f"{vmin:.2f} (Strong)","6.08","12.16","18.23",f"{vmax:.2f} (Weak)"])
 
         # Fancy interpolated fill:
         # cf2 = ax.tricontourf(triang_refined, z_refined, levels=500, cmap='viridis', alpha=transparency, vmin=0, vmax=z.max())
@@ -540,6 +562,6 @@ class PointCloud:
         v2m = v2 - v2.mean()
         v1_pad = np.hstack((v1m, np.zeros_like(v1m)))[:-1]
         r = sp.signal.fftconvolve(v1_pad, v2m[::-1], 'valid')
-        return r/(np.cumsum(v1m**2)[::-1])
+        return r/(np.cumsum(v1m*v2m)[::-1])
 
     

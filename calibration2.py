@@ -98,8 +98,8 @@ print(f"Hot Wire Voltages 2: {HW_voltage_calibration2}")
 
 
 #Plotting
-#plt.scatter(Valydine_voltage, velocity_values, label='data')
-#plt.plot(voltages_test, p(voltages_test), label='poly curve')
+plt.scatter(Valydine_voltage, velocity_values, label='data')
+plt.plot(voltages_test, p(voltages_test), label='poly curve')
 
 #Function that has hw voltages as input and velocities as output
 def v_to_u_func(E_array, A, B, n):
