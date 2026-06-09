@@ -39,26 +39,27 @@ for i in range(n):
     xi_s.append(xi_i)
     f_s.append(f_i)
 
-mass_flux_arr /= mass_flux_arr[4]
-momentum_flux_arr /= momentum_flux_arr[4]
-energy_flux_arr /= energy_flux_arr[4]
-x = np.linspace(0,8,250)
+mass_flux_arr /= mass_flux_arr[0]
+momentum_flux_arr /= momentum_flux_arr[0]
+energy_flux_arr /= energy_flux_arr[0]
+x = np.linspace(4,8,100)
 #y = (1/(x+1.72))+0.42
 #y = (1/(x+1.45))+0.32
-y = (1/(x+1.5))+0.33
+y = (1/(x-1.1))+0.288
+
 
 plt.figure()
 plt.plot(np.linspace(4,4,10), np.linspace(0,3.2,10), label='Basic Region Cutoff', color = "#FF0000")
-for i in range(20):
-    plt.plot(np.linspace(0,4,10), np.linspace(-1.75+i/5,0.25+i/5,10), color = "#FF0000")
+for i in range(25):
+    plt.plot(np.linspace(0,4,10), np.linspace(-1.6+i/5,0+i/5,10), color = "#FF0000")
 plt.plot(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
 plt.plot(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
 plt.plot(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')
-#plt.plot([0,8], [1,mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
-#plt.plot([0,8], [1,1], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
-#plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
+plt.plot([4,8], [mass_flux_arr[4],mass_flux_arr[-1]], label='Expected Shape Mass Flux', color = '#000080', ls = ":")
+plt.plot([4,8], [momentum_flux_arr[4],momentum_flux_arr[4]], label='Expected Shape Momentum Flux', color = "#008000", ls = ":")
+plt.plot(x,y, label='Expected Shape Assumed Energy Flux', color = '#800000', ls = ":")
 #plt.title("Normalized Flux Integrals")
-plt.ylim((0.25,1.75))
+plt.ylim((0.4,3.1))
 plt.xlim((0,8)) 
 plt.xlabel("Axial Distance x/d [-]")
 plt.ylabel("Normalized Flux [-]")
