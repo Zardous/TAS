@@ -50,8 +50,8 @@ y = (1/(x-1.1))+0.288
 
 plt.figure()
 plt.plot(np.linspace(4,4,10), np.linspace(0,3.2,10), label='Basic Region Cutoff', color = "#FF0000")
-for i in range(25):
-    plt.plot(np.linspace(0,4,10), np.linspace(-1.6+i/5,0+i/5,10), color = "#FF0000")
+#for i in range(25):
+#    plt.plot(np.linspace(0,4,10), np.linspace(-1.6+i/5,0+i/5,10), color = "#FF0000")
 plt.plot(axial_dist, mass_flux_arr, label='Mass Flux', color = '#000080')
 plt.plot(axial_dist, momentum_flux_arr, label='Momentum Flux', color = "#008000")
 plt.plot(axial_dist, energy_flux_arr, label='Energy Flux', color = '#800000')

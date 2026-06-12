@@ -426,6 +426,7 @@ class PointCloud:
         
         ax.set_ylabel("Axial distance x/d [-]")
         ax.set_xlabel('Radial distance r/d [-]')
+        ax.set_zlabel('Mean Velocity [m/s]')
 
         x = np.array([p.radial for lst in self.points for p in lst])
         y = np.array([p.axial for lst in self.points for p in lst])
